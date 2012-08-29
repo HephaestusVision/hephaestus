@@ -1,7 +1,7 @@
 The Hephaestus Project
 ======================
 
-Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application.
+<img src="http://www.gravatar.com/avatar/9173758088a06645388cba4fa781c0f7.png" style="float:left;padding-right:5px;padding-bottom:5px;"> Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application.
 
 The Hephaestus team is Frank Ferro, Christopher Leslie, and Hal Canary.
 
