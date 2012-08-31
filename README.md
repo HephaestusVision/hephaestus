@@ -52,6 +52,14 @@ We will deliver things on time.  If a deadline is approaching and someone isn't 
 
 We will all respond to email in a timely manner (within 24 hours at worst).
 
+As soon as a person realizes they will be missing from a meeting, they will contact all people involved with that meeting. Email if there is enough time or text if it's last minute
+
+If a team member is more than 5 of minutes late to a meeting, one of the teammates will call asking where they are.
+
+If a team member does not respond to an email withing a timely manner they will receive a text message telling them to check their email account.
+
+Team members must be honest about how likely they are to finish their assigned work. Team members must be informed when a person is falling behind and the other members must be willing to help, within reason, to catch the person up.  
+
 If any of us break the rules, it will be noted in the project's peer-evaluation.
 
 ### Coding Practices ###
