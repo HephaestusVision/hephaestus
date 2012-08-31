@@ -9,23 +9,24 @@ The Hephaestus team is Frank Ferro, Christopher Leslie, and Hal Canary.
 
 Hephaestus will consist of three related applications:
 
-1. A content acquisition application that makes use of the Kinect and the [Point Cloud Library](http://pointclouds.org/) to construct a digital representation of a scene (possibly in [VTK](http://www.vtk.org/) format).
 
-2. A backend server that stores and manages the collection of scenes from users and organizations, possibly using [MIDAS](http://www.midasplatform.org/).
+1. A content acquisition application that makes use of the Kinect and the [Point Cloud Library](http://pointclouds.org/) to construct a digital representation of a scene (possibly in [VTK](http://www.vtk.org/) format).  That digital representation willbe in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point coulds to form a 360&#176; view of the objects.
 
-3. A set of viewing apps for rendering scenes (possibly making use of [VES](http://www.vtk.org/Wiki/VES)).
+2. A backend server that stores and manages the collection of scenes from users and organizations, possibly using [MIDAS](http://www.midasplatform.org/).  The server will allow groups of users to share scenes with each other.
+
+3. A set of viewing apps for rendering scenes (possibly making use of [VES](http://www.vtk.org/Wiki/VES)).  The primary goal are the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.
 
 * * *
 
 ## Team Roles &amp; Contact Information ##
 
 Team:
-- Frank Ferro (fferro at live.unc.edu, 631-848-8043) - project manager, editor
-- Christopher Leslie (cdleslie at live.unc.edu, 919-649-3129) - client manager, computer vision developer
-- Hal Canary (hal at cs.unc.edu, 239-313-9375) - chief developer
+- [Frank Ferro](http://www.unc.edu/~fferro/) (fferro at live.unc.edu, 631-848-8043) - project manager, editor
+- [Christopher Leslie](http://cs.unc.edu/~cdleslie/) (cdleslie at live.unc.edu, 919-649-3129) - client manager, computer vision developer
+- [Hal Canary](http://cs.unc.edu/~hal/) (hal at cs.unc.edu, 239-313-9375) - chief developer
 
 Client:
-- Patrick Reynolds (cpreynolds at gmail.com)
+- [Patrick Reynolds](http://www.cs.unc.edu/~cpatrick/) (cpreynolds at gmail.com)
 
 ## Schedule of Regular Meetings ##
 
