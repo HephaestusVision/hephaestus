@@ -33,7 +33,7 @@
       <section id="main_content" class="inner">
         <h1>The Hephaestus Project</h1>
 
-<h2>Project Introduction.</h2>
+<h2>Project Introduction</h2>
 
 <blockquote>
 <p><em>Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application.</em></p>
@@ -44,22 +44,40 @@
 <p>Hephaestus will consist of three related applications:</p>
 
 <ol>
-<li><p>A content acquisition application that makes use of the Kinect and the <a href="http://pointclouds.org/">Point Cloud Library</a> to construct a digital representation of a scene (possibly in <a href="http://www.vtk.org/">VTK</a> format).</p></li>
-<li><p>A backend server that stores and manages the collection of scenes from users and organizations, possibly using <a href="http://www.midasplatform.org/">MIDAS</a>.</p></li>
-<li><p>A set of viewing apps for rendering scenes (possibly making use of <a href="http://www.vtk.org/Wiki/VES">VES</a>).</p></li>
-</ol><hr><h2>Team Roles &amp; Contact Information</h2>
+<li><p>A content acquisition application that makes use of the Kinect and the <a href="http://pointclouds.org/">Point Cloud Library</a> to construct a digital representation of a scene (possibly in <a href="http://www.vtk.org/">VTK</a> format).  That digital representation willbe in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point coulds to form a 360° view of the objects.</p></li>
+<li><p>A backend server that stores and manages the collection of scenes from users and organizations, possibly using <a href="http://www.midasplatform.org/">MIDAS</a>.  The server will allow groups of users to share scenes with each other.</p></li>
+<li><p>A set of viewing apps for rendering scenes (possibly making use of <a href="http://www.vtk.org/Wiki/VES">VES</a>).  The primary goal is the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.</p></li>
+</ol><h2>User Stories</h2>
+
+<p>An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop and runs our capture application and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.</p>
+
+<p>A salesman carries his tablet with him to show off 3D models of the devices he is selling.  Ahead of time, his team had created scenes of the devices in use, in place, using the capture application.</p>
+
+<p>...Something about medical devices...</p>
+
+<hr><h2>Team Roles &amp; Contact Information</h2>
 
 <p>Team:</p>
 
 <ul>
-<li>Frank Ferro (fferro at live.unc.edu, 631-848-8043) - project manager, editor</li>
-<li>Christopher Leslie (cdleslie at live.unc.edu, 919-649-3129) - client manager, computer vision developer</li>
-<li>Hal Canary (hal at cs.unc.edu, 239-313-9375) - chief developer</li>
+<li>
+<a href="http://www.unc.edu/%7Efferro/">Frank Ferro</a> (fferro at live.unc.edu, 631-848-8043) - project manager, editor</li>
+<li>
+<a href="http://cs.unc.edu/%7Ecdleslie/">Christopher Leslie</a> (cdleslie at live.unc.edu, 919-649-3129) - client manager, computer vision developer</li>
+<li>
+<a href="http://cs.unc.edu/%7Ehal/">Hal Canary</a> (hal at cs.unc.edu, 239-313-9375) - chief developer</li>
 </ul><p>Client:</p>
 
 <ul>
-<li>Patrick Reynolds (cpreynolds at gmail.com)</li>
-</ul><h2>Team Rules.</h2>
+<li>
+<a href="http://www.cs.unc.edu/%7Ecpatrick/">Patrick Reynolds</a> (cpreynolds at gmail.com)</li>
+</ul><h2>Schedule of Regular Meetings</h2>
+
+<ul>
+<li>Wednesday @ 10 a.m. - meet with client</li>
+<li>Friday @ 10 a.m. - meet with professor</li>
+<li>other group meetings, as needed</li>
+</ul><h2>Team Rules</h2>
 
 <h3>Team Behavior</h3>
 
@@ -75,16 +93,11 @@
 
 <p>We will adhere to Kitware's coding style and guidelines, since they are our client.  Hal is familiar with the <a href="http://www.vtk.org/Wiki/VTK_Coding_Standards">VTK Coding Standards</a>.</p>
 
-<h2>Schedule of Regular Meetings</h2>
-
-<ul>
-<li>We will meet with the client every Wednesday at 10 a.m.</li>
-<li>We will meet with the professor every Friday at 10 a.m.</li>
-</ul><h2>Journal of Meetings and Decisions.</h2>
+<h2>Journal of Meetings and Decisions</h2>
 
 <p>...</p>
 
-<h2>Related Links.</h2>
+<h2>Related Links</h2>
 
 <ul>
 <li>
