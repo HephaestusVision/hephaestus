@@ -1,83 +1,71 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="stylesheets/stylesheet.css">
+<title>Hephaestus</title>
+</head>
+<body>
+<div id="header_wrap" class="outer">
+<header class="inner">
+<h1 id="project_title">Hephaestus</h1>
+<h2 id="project_tagline">Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application.</h2>
+</header>
+</div>
+<div id="main_content_wrap" class="outer">
+<section id="main_content" class="inner">
+<h1>The Hephaestus Project</h1>
 
-  <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Hephaestus : Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application." />
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Hephaestus</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/HephaestusVision/hephaestus">View on GitHub</a>
-
-          <h1 id="project_title">Hephaestus</h1>
-          <h2 id="project_tagline">Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application.</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/HephaestusVision/hephaestus/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/HephaestusVision/hephaestus/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>The Hephaestus Project</h1>
-
-<h2>Project Introduction</h2>
+<h3>Tweet</h3>
 
 <blockquote>
-<p><em>Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application.</em></p>
+  <p><em>Hephaestus facilitates creation of 3d scenes from a depth camera that can be shared in our online community and interacted with on tablets.</em></p>
 </blockquote>
+
+<h2>Project Introduction</h2>
 
 <p>The Hephaestus team is Frank Ferro, Christopher Leslie, and Hal Canary.</p>
 
 <p>Hephaestus will consist of three related applications:</p>
 
 <ol>
-<li><p>A content acquisition application that makes use of the Kinect and the <a href="http://pointclouds.org/">Point Cloud Library</a> to construct a digital representation of a scene (possibly in <a href="http://www.vtk.org/">VTK</a> format).  That digital representation willbe in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point coulds to form a 360° view of the objects.</p></li>
+<li><p>A content acquisition application that makes use of the Kinect and the <a href="http://pointclouds.org/">Point Cloud Library</a> to construct a digital representation of a scene (possibly in <a href="http://www.vtk.org/">VTK</a> format).  That digital representation willbe in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point coulds to form a 360&#176; view of the objects.</p></li>
 <li><p>A backend server that stores and manages the collection of scenes from users and organizations, possibly using <a href="http://www.midasplatform.org/">MIDAS</a>.  The server will allow groups of users to share scenes with each other.</p></li>
 <li><p>A set of viewing apps for rendering scenes (possibly making use of <a href="http://www.vtk.org/Wiki/VES">VES</a>).  The primary goal is the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.</p></li>
-</ol><h2>User Stories</h2>
+</ol>
 
-<p>An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop and runs our capture application and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.</p>
+<h2>User Stories</h2>
+
+<p>(These user stories need to be run by Patrick before they are finalized.)</p>
+
+<p>An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop, runs our capture application, and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.</p>
 
 <p>A salesman carries his tablet with him to show off 3D models of the devices he is selling.  Ahead of time, his team had created scenes of the devices in use, in place, using the capture application.</p>
 
-<p>...Something about medical devices...</p>
+<p>A technician fitting a medical devices such as a prosthetic leg uses our capture application to scan the prosthetic and the patient.  The technictian's team then could collaborate on fitting the prothetic correctly.</p>
 
-<hr><h2>Team Roles &amp; Contact Information</h2>
+<hr />
 
-<p>Team:</p>
+<h2>Team Roles &amp; Contact Information</h2>
 
-<ul>
-<li>
-<a href="http://www.unc.edu/%7Efferro/">Frank Ferro</a> (fferro at live.unc.edu, 631-848-8043) - project manager, editor</li>
-<li>
-<a href="http://cs.unc.edu/%7Ecdleslie/">Christopher Leslie</a> (cdleslie at live.unc.edu, 919-649-3129) - client manager, computer vision developer</li>
-<li>
-<a href="http://cs.unc.edu/%7Ehal/">Hal Canary</a> (hal at cs.unc.edu, 239-313-9375) - chief developer</li>
-</ul><p>Client:</p>
+<p>Team:
+- <a href="http://www.unc.edu/~fferro/">Frank Ferro</a> (fferro at live.unc.edu, 631-848-8043) - project manager, editor
+- <a href="http://cs.unc.edu/~cdleslie/">Christopher Leslie</a> (cdleslie at live.unc.edu, 919-649-3129) - client manager, computer vision developer
+- <a href="http://cs.unc.edu/~hal/">Hal Canary</a> (hal at cs.unc.edu, 239-313-9375) - chief developer</p>
 
-<ul>
-<li>
-<a href="http://www.cs.unc.edu/%7Ecpatrick/">Patrick Reynolds</a> (cpreynolds at gmail.com)</li>
-</ul><h2>Schedule of Regular Meetings</h2>
+<p>Client:
+- <a href="http://www.cs.unc.edu/~cpatrick/">Patrick Reynolds</a> (cpreynolds at gmail.com)</p>
+
+<h2>Schedule of Regular Meetings</h2>
 
 <ul>
 <li>Wednesday @ 10 a.m. - meet with client</li>
 <li>Friday @ 10 a.m. - meet with professor</li>
 <li>other group meetings, as needed</li>
-</ul><h2>Team Rules</h2>
+</ul>
+
+<h2>Team Rules</h2>
 
 <h3>Team Behavior</h3>
 
@@ -86,6 +74,16 @@
 <p>We will deliver things on time.  If a deadline is approaching and someone isn't going to make it, he must ask the rest of the team for help well before the deadline.</p>
 
 <p>We will all respond to email in a timely manner (within 24 hours at worst).</p>
+
+<p>As soon as a person realizes they will be missing from a meeting, they will contact all people involved with that meeting. Email if there is enough time or text if it's last minute</p>
+
+<p>If a team member is more than 5 of minutes late to a meeting, one of the teammates will call asking where they are.</p>
+
+<p>If a team member does not respond to an email withing a timely manner they will receive a text message telling them to check their email account.</p>
+
+<p>Team members must be honest about how likely they are to finish their assigned work. Team members must be informed when a person is falling behind and the other members must be willing to help, within reason, to catch the person up.  </p>
+
+<p>As soon as a person realizes they will be missing from a meeting, they will contact all people involved with that meeting. Email if there is enough time or text if it's last minute.</p>
 
 <p>If any of us break the rules, it will be noted in the project's peer-evaluation.</p>
 
@@ -100,34 +98,30 @@
 <h2>Related Links</h2>
 
 <ul>
-<li>
-<a href="http://daringfireball.net/projects/markdown/syntax">Markdown Syntax</a> - used for documentation.</li>
+<li><a href="http://daringfireball.net/projects/markdown/syntax">Markdown Syntax</a> - used for documentation.</li>
 <li><a href="http://pointclouds.org/">Point Cloud Library</a></li>
 <li><a href="http://www.vtk.org/">VTK</a></li>
 <li><a href="http://www.kitware.com/">Kitware</a></li>
-<li>
-<a href="http://www.midasplatform.org/">MIDAS</a>.</li>
+<li><a href="http://www.midasplatform.org/">MIDAS</a>.</li>
 <li><a href="http://www.vtk.org/Wiki/VES">VES</a></li>
-<li>
-<a href="https://github.com/xtk/X#readme">XTK</a> (WegGL Viz)</li>
+<li><a href="https://github.com/xtk/X#readme">XTK</a> (WegGL Viz)</li>
 <li><a href="http://www.kiwiviewer.org/">KiwiViewer</a></li>
 <li><a href="http://www.cmake.org/">CMake</a></li>
 <li><a href="http://git-scm.com/documentation">Git</a></li>
-</ul><h2>Repository for all Deliverables</h2>
+<li><a href="http://research.microsoft.com/pubs/155378/ismar2011.pdf">research.microsoft.com/pubs/155378/ismar2011.pdf</a></li>
+<li><a href="http://research.microsoft.com/pubs/155416/kinectfusion-uist-comp.pdf">research.microsoft.com/pubs/155416/kinectfusion-uist-comp.pdf</a></li>
+</ul>
 
-<p><a href="https://github.com/HephaestusVision/hephaestus/">here</a></p>
-      </section>
-    </div>
+<h2>Repository for all Deliverables</h2>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Hephaestus maintained by <a href="https://github.com/HephaestusVision">HephaestusVision</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
+<p><a href="https://github.com/HephaestusVision/hephaestus/">https://github.com/HephaestusVision/hephaestus/</a></p>
 
-    
-
-  </body>
+</section>
+</div>
+<div id="footer_wrap" class="outer">
+<footer class="inner">
+<p >&nbsp;</p>
+</footer>
+</div>
+</body>
 </html>
