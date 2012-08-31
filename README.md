@@ -1,9 +1,11 @@
 The Hephaestus Project
 ======================
 
-## Project Introduction ##
+###Tweet###
 
-> _Hephaestus project allows users to create 3d scenes with a Kinect or depth camera and then share and view them through an iOS/Android app._
+> _Hephaestus facilitates creation of 3d scenes from a depth camera that can be shared in our online community and interacted with on tablets._
+
+## Project Introduction ##
 
 The Hephaestus team is Frank Ferro, Christopher Leslie, and Hal Canary.
 
@@ -14,9 +16,6 @@ Hephaestus will consist of three related applications:
 2. A backend server that stores and manages the collection of scenes from users and organizations, possibly using [MIDAS](http://www.midasplatform.org/).  The server will allow groups of users to share scenes with each other.
 
 3. A set of viewing apps for rendering scenes (possibly making use of [VES](http://www.vtk.org/Wiki/VES)).  The primary goal is the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.
-
-###Tweet###
-Hephaestus facilitates creation of 3d scenes from a depth camera that can be shared in our online community and interacted with on tablets.
 
 ## User Stories ##
 
@@ -93,4 +92,4 @@ We will adhere to Kitware's coding style and guidelines, since they are our clie
 
 ## Repository for all Deliverables ##
 
-[here](https://github.com/HephaestusVision/hephaestus/)
+[https://github.com/HephaestusVision/hephaestus/](https://github.com/HephaestusVision/hephaestus/)
