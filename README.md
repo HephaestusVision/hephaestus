@@ -32,11 +32,13 @@ A technician fitting a medical devices such as a prosthetic leg uses our capture
 ## Team Roles &amp; Contact Information ##
 
 Team:
+
 - [Frank Ferro](http://www.unc.edu/~fferro/) (fferro at live.unc.edu, 631-848-8043) - project manager, editor
 - [Christopher Leslie](http://cs.unc.edu/~cdleslie/) (cdleslie at live.unc.edu, 919-649-3129) - client manager, computer vision developer
 - [Hal Canary](http://cs.unc.edu/~hal/) (hal at cs.unc.edu, 239-313-9375) - chief developer
 
 Client:
+
 - [Patrick Reynolds](http://www.cs.unc.edu/~cpatrick/) (cpreynolds at gmail.com)
 
 ## Schedule of Regular Meetings ##
