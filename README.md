@@ -1,7 +1,7 @@
 The Hephaestus Project
 ======================
 
-## Project Introduction. ##
+## Project Introduction ##
 
 > _Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application._
 
@@ -9,12 +9,20 @@ The Hephaestus team is Frank Ferro, Christopher Leslie, and Hal Canary.
 
 Hephaestus will consist of three related applications:
 
-
 1. A content acquisition application that makes use of the Kinect and the [Point Cloud Library](http://pointclouds.org/) to construct a digital representation of a scene (possibly in [VTK](http://www.vtk.org/) format).  That digital representation willbe in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point coulds to form a 360&#176; view of the objects.
 
 2. A backend server that stores and manages the collection of scenes from users and organizations, possibly using [MIDAS](http://www.midasplatform.org/).  The server will allow groups of users to share scenes with each other.
 
-3. A set of viewing apps for rendering scenes (possibly making use of [VES](http://www.vtk.org/Wiki/VES)).  The primary goal are the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.
+3. A set of viewing apps for rendering scenes (possibly making use of [VES](http://www.vtk.org/Wiki/VES)).  The primary goal is the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.
+
+## User Stories ##
+
+An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop and runs our capture application and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.
+
+A salesman carries his tablet with him to show off 3D models of the devices he is selling.  Ahead of time, his team had created scenes of the devices in use, in place, using the capture application.
+
+...Something about medical devices...
+
 
 * * *
 
@@ -32,8 +40,9 @@ Client:
 
 - Wednesday @ 10 a.m. - meet with client
 - Friday @ 10 a.m. - meet with professor
+- other group meetings, as needed
 
-## Team Rules. ##
+## Team Rules ##
 
 ### Team Behavior ###
 
@@ -49,11 +58,11 @@ If any of us break the rules, it will be noted in the project's peer-evaluation.
 
 We will adhere to Kitware's coding style and guidelines, since they are our client.  Hal is familiar with the [VTK Coding Standards](http://www.vtk.org/Wiki/VTK_Coding_Standards).
 
-## Journal of Meetings and Decisions. ##
+## Journal of Meetings and Decisions ##
 
 ...
 
-## Related Links. ##
+## Related Links ##
 
 - [Markdown Syntax](http://daringfireball.net/projects/markdown/syntax) - used for documentation.
 - [Point Cloud Library](http://pointclouds.org/)
