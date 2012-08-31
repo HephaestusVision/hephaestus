@@ -3,7 +3,7 @@ The Hephaestus Project
 
 ## Project Introduction ##
 
-> _Create, View, and Share 3D Scenes Using a Depth Camera and a WebGL/iOS/Android application._
+> _Hephaestus project allows users to create 3d scenes with a Kinect or depth camera and then share and view them through an iOS/Android app._
 
 The Hephaestus team is Frank Ferro, Christopher Leslie, and Hal Canary.
 
@@ -17,12 +17,13 @@ Hephaestus will consist of three related applications:
 
 ## User Stories ##
 
-An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop and runs our capture application and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.
+(These user stories need to be run by Patrick before they are finalized.)
+
+An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop, runs our capture application, and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.
 
 A salesman carries his tablet with him to show off 3D models of the devices he is selling.  Ahead of time, his team had created scenes of the devices in use, in place, using the capture application.
 
-...Something about medical devices...
-
+A technician fitting a medical devices such as a prosthetic leg uses our capture application to scan the prosthetic and the patient.  The technictian's team then could collaborate on fitting the prothetic correctly.
 
 * * *
 
@@ -60,6 +61,8 @@ If a team member does not respond to an email withing a timely manner they will 
 
 Team members must be honest about how likely they are to finish their assigned work. Team members must be informed when a person is falling behind and the other members must be willing to help, within reason, to catch the person up.  
 
+As soon as a person realizes they will be missing from a meeting, they will contact all people involved with that meeting. Email if there is enough time or text if it's last minute.
+
 If any of us break the rules, it will be noted in the project's peer-evaluation.
 
 ### Coding Practices ###
@@ -82,6 +85,8 @@ We will adhere to Kitware's coding style and guidelines, since they are our clie
 - [KiwiViewer](http://www.kiwiviewer.org/)
 - [CMake](http://www.cmake.org/)
 - [Git](http://git-scm.com/documentation)
+- [research.microsoft.com/pubs/155378/ismar2011.pdf](http://research.microsoft.com/pubs/155378/ismar2011.pdf)
+- [research.microsoft.com/pubs/155416/kinectfusion-uist-comp.pdf](http://research.microsoft.com/pubs/155416/kinectfusion-uist-comp.pdf)
 
 ## Repository for all Deliverables ##
 
