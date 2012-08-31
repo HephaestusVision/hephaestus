@@ -27,6 +27,11 @@ Team:
 Client:
 - Patrick Reynolds (cpreynolds at gmail.com)
 
+## Schedule of Regular Meetings ##
+
+- Wednesday @ 10 a.m. - meet with client
+- Friday @ 10 a.m. - meet with professor
+
 ## Team Rules. ##
 
 ### Team Behavior ###
