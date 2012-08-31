@@ -15,6 +15,9 @@ Hephaestus will consist of three related applications:
 
 3. A set of viewing apps for rendering scenes (possibly making use of [VES](http://www.vtk.org/Wiki/VES)).  The primary goal is the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.
 
+###Tweet###
+Hephaestus facilitates creation of 3d scenes from a depth camera that can be shared in our online community and interacted with on tablets.
+
 ## User Stories ##
 
 (These user stories need to be run by Patrick before they are finalized.)
