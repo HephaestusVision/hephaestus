@@ -11,7 +11,7 @@ The Hephaestus team is Frank Ferro, Christopher Leslie, and Hal Canary.
 
 Hephaestus will consist of three related applications:
 
-1. A content acquisition application that makes use of the Kinect and the [Point Cloud Library](http://pointclouds.org/) to construct a digital representation of a scene (possibly in [VTK](http://www.vtk.org/) format).  That digital representation willbe in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point coulds to form a 360&#176; view of the objects.
+1. A content acquisition application that makes use of the Kinect and the [Point Cloud Library](http://pointclouds.org/) to construct a digital representation of a scene (possibly in [VTK](http://www.vtk.org/) format).  That digital representation will be in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point clouds to form a 360&#176; view of the objects.
 
 2. A backend server that stores and manages the collection of scenes from users and organizations, possibly using [MIDAS](http://www.midasplatform.org/).  The server will allow groups of users to share scenes with each other.
 
