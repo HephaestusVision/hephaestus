@@ -19,13 +19,11 @@ Hephaestus will consist of three related applications:
 
 ## User Stories ##
 
-(These user stories need to be run by Patrick before they are finalized.)
-
 An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop, runs our capture application, and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.
 
 A salesman carries his tablet with him to show off 3D models of the devices he is selling.  Ahead of time, his team had created scenes of the devices in use, in place, using the capture application.
 
-A technician fitting a medical devices such as a prosthetic leg uses our capture application to scan the prosthetic and the patient.  The technictian's team then could collaborate on fitting the prothetic correctly.
+A technician fitting a medical devices such as a prosthetic leg uses our capture application to scan the prosthetic and the patient.  The technician and his collaborators could then show how the prosthetic will fit by overlaying two meshes.
 
 ## Hephaestus Team Information ##
 
