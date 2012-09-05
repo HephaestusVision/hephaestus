@@ -30,20 +30,18 @@
 <p>Hephaestus will consist of three related applications:</p>
 
 <ol>
-<li><p>A content acquisition application that makes use of the Kinect and the <a href="http://pointclouds.org/">Point Cloud Library</a> to construct a digital representation of a scene (possibly in <a href="http://www.vtk.org/">VTK</a> format).  That digital representation willbe in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point coulds to form a 360&#176; view of the objects.</p></li>
+<li><p>A content acquisition application that makes use of the Kinect and the <a href="http://pointclouds.org/">Point Cloud Library</a> to construct a digital representation of a scene (possibly in <a href="http://www.vtk.org/">VTK</a> format).  That digital representation will be in the form of surfaces arranged in scenes.  This application will handle converting point clouds to surfaces and merging point clouds to form a 360&#176; view of the objects.</p></li>
 <li><p>A backend server that stores and manages the collection of scenes from users and organizations, possibly using <a href="http://www.midasplatform.org/">MIDAS</a>.  The server will allow groups of users to share scenes with each other.</p></li>
 <li><p>A set of viewing apps for rendering scenes (possibly making use of <a href="http://www.vtk.org/Wiki/VES">VES</a>).  The primary goal is the iOS and Android apps, but we also want a WebGL app and the ability to directly download files.</p></li>
 </ol>
 
 <h2>User Stories</h2>
 
-<p>(These user stories need to be run by Patrick before they are finalized.)</p>
-
 <p>An engineer wants to create a 3D model of an object and share it with collaborators across the world, some of whom only have smartphones.  He connects a Kinect to a laptop, runs our capture application, and points the Kinect at the object from several angles.  The application merges the point clouds and creates a triangulated mesh.  When the engineer is happy with the mesh, he uploads the object mesh into the cloud where it is available for everyone on the team to see.  His collaborators can get the mesh off the cloud and view the it via a WebGL/iOS/Android application, or simply download the mesh in a standard file format to edit as they please.</p>
 
 <p>A salesman carries his tablet with him to show off 3D models of the devices he is selling.  Ahead of time, his team had created scenes of the devices in use, in place, using the capture application.</p>
 
-<p>A technician fitting a medical devices such as a prosthetic leg uses our capture application to scan the prosthetic and the patient.  The technictian's team then could collaborate on fitting the prothetic correctly.</p>
+<p>A technician fitting a medical devices such as a prosthetic leg uses our capture application to scan the prosthetic and the patient.  The technician and his collaborators could then show how the prosthetic will fit by overlaying two meshes.</p>
 
 <h2>Hephaestus Team Information</h2>
 
