@@ -36,7 +36,8 @@
 
 import subprocess, sys, shutil, os
 
-markdown = '/usr/bin/markdown'
+#markdown = '/usr/bin/markdown'
+markdown = 'markdown'
 
 def make_web_page(src,dst,title="",header="",tagline=""):
 	def copy(i,o):

@@ -47,7 +47,39 @@ We will adhere to Kitware's coding style and guidelines, since they are our clie
 
 ## Journal of Meetings and Decisions ##
 
-- 2012-08-29 Wed - Hal and Chris met with Patrick for initial project meeting
-- 2012-08-29 Wed - Hal, Chris, Frank met to organize team.
+-   **2012-08-29** Wed - Hal and Chris met with Patrick for initial project meeting
+
+-   **2012-08-29** Wed - Hal, Chris, Frank met to organize team.
+
+-   **2012-09-05** Wed - Hal, Chris, Frank, Patrick met.  (Chris was late to the meeting.)
+
+    Before Patrick arrived
+
+    -   Review differences with C++ and Java
+
+    Once Patrick  arrived
+
+    -   Discussed User stories and made changes to third user story
+    -   Discus basics on graphics and polygon options for 3d display
+    -   Discus Midas platform as the server. Wiki is available on
+        midasplatform.org
+    -   Discus using Apache 2 license. It handles patents and is for
+        open and commercial use. 
+
+    After Patrick left
+
+    -   Mapped out processes: Kinect - Laptop - cloud - server - cloud - device
+    -   Discussed alternatives and stated that we would look up other options. 
+    -   Discuss jobs over the next few days
+
+    To Do:
+
+    -   Hal: Barebones QT + VTK application, put in repository. Check out Midas.
+    -   Chris: Keep working on kinect with PC, and look for open source sdk. Create a progamatic interface (set of functions and classes) for getting the mesh. from the GUI application.
+    -   Me: Write up functional Spec, and get caught up on Git and C++.
+
+* * *
 
 [back to main page](./)
+
+
