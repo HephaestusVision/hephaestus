@@ -28,11 +28,26 @@ include(${VTK_USE_FILE})
 
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
-set(vtk_test_srcs main.cxx )
-QT4_WRAP_CPP( MOCSrcs vtk_test_srcs  )
+
+set(SRC
+  main.cxx
+  PolyViewMainWindow.cxx
+  QVTKPolyViewWidget.cxx
+  PolyViewMainWindow.h
+  QVTKPolyViewWidget.h
+)
+
+set(MOC
+  PolyViewMainWindow.h
+)
+qt4_wrap_cpp(MOC_GENERATED ${MOC})
 
 SOURCE_GROUP("Generated" FILES ${MOCSrcs} ${RCS_SOURCES} )
  
-add_executable( vtk_test ${vtk_test_srcs}  )
-add_library( vtk SHARED IMPORTED ${VTK_LIBRARIES} )
+add_executable(vtk_test
+    ${SRC}
+    ${MOC_GENERATED} 
+)
+#add_library( vtk SHARED IMPORTED ${VTK_LIBRARIES} )
 target_link_libraries( vtk_test ${VTK_LIBRARIES} QVTK)
+
