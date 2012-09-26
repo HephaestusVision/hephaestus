@@ -16,27 +16,34 @@
   implied.  See the License for the specific language governing
   permissions and limitations under the License.
 */
-#ifndef __PolyViewMainWindow_h__
-#define __PolyViewMainWindow_h__
+#ifndef DEPTHSCANNERMAINWINDOW_H
+#define DEPTHSCANNERMAINWINDOW_H
 
 #include <QMainWindow>
 #include "QVTKPolyViewWidget.h"
+class QApplication;
+class Cloudy;
+class CameraWidget;
 class vtkPolyData;
-typedef vtkPolyData * (*PolyDataSourceFunction)();
 
-class PolyViewMainWindow : public QMainWindow {
+class DepthScannerMainWindow : public QMainWindow {
   Q_OBJECT
 public:
-  PolyViewMainWindow(PolyDataSourceFunction srcFn, QApplication * app);
-  ~PolyViewMainWindow();
+  DepthScannerMainWindow(QApplication * app);
+  ~DepthScannerMainWindow();
 public slots:
-  void replaceSrc();
+	void create();
+	void update();
+	void save();
+	void load();
+public:
+	QApplication * qApplication;
+	vtkPolyData * pointCloud;
+	QVTKPolyViewWidget qVTKPolyViewWidget ;
+	Cloudy * cloudy;
+	CameraWidget * camera;
 private:
-  PolyDataSourceFunction srcFn;
-  vtkPolyData * currentSource;
-  QVTKPolyViewWidget polyWidget; 
-  PolyViewMainWindow(const PolyViewMainWindow &);
-  PolyViewMainWindow& operator=(const PolyViewMainWindow &);
+  DepthScannerMainWindow(const DepthScannerMainWindow &);
+  DepthScannerMainWindow& operator=(const DepthScannerMainWindow &);
 };
-
-#endif
+#endif /* DEPTHSCANNERMAINWINDOW_H */

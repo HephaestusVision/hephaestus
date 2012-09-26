@@ -26,19 +26,22 @@ set(VTK_DIR "/home/hal/build/VTK-5-10")
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+set(QT_USE_OPENGL TRUE)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 
 set(SRC
   main.cxx
-  PolyViewMainWindow.cxx
+  CameraWidget.cxx
+  Cloudy.cxx
+  DepthScannerMainWindow.cxx
+  PointCloud.cxx
   QVTKPolyViewWidget.cxx
-  PolyViewMainWindow.h
-  QVTKPolyViewWidget.h
 )
 
 set(MOC
-  PolyViewMainWindow.h
+  CameraWidget.h
+  DepthScannerMainWindow.h
 )
 qt4_wrap_cpp(MOC_GENERATED ${MOC})
 
@@ -49,5 +52,17 @@ add_executable(vtk_test
     ${MOC_GENERATED} 
 )
 #add_library( vtk SHARED IMPORTED ${VTK_LIBRARIES} )
-target_link_libraries( vtk_test ${VTK_LIBRARIES} QVTK)
+
+LINK_DIRECTORIES(
+  ${QT_LIBRARIES}
+  ${QT_LIBRARY_DIR}
+  ${QT_QTOPENGL_LIBRARY}
+  ${QT_QTGUI_LIBRARY}
+  ${QT_QTCORE_LIBRARY}
+  ${QT_MAIN_LIBRARY}
+  )
+
+
+target_link_libraries( vtk_test ${VTK_LIBRARIES} QVTK ${QT_QTOPENGL_LIBRARY})
+
 
