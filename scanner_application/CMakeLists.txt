@@ -1,4 +1,4 @@
-#   An example of a VTK-QT application.
+#   Hephaestus Scanner Application
 #
 #   Copyright 2012 University of North Carolina at Chapel Hill.
 #
@@ -17,18 +17,36 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-project( vtk_test )
+project( hephaestusscan )
 
 set(CMAKE_BUILD_TYPE debug)
 set(CMAKE_CXX_FLAGS "-g -Wall")
 
-set(VTK_DIR "/home/hal/build/VTK-5-10")
+#set the VTK_DIR variable
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
 set(QT_USE_OPENGL TRUE)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
+
+find_package(OpenCV REQUIRED)
+
+## build openkinect/LibFreenect with
+## cmake -DBUILD_CV:BOOL="1" -DOpenCV_DIR:PATH="/home/hal/build/OpenCV"
+
+set(LIB_FREENECT_SRC "$ENV{LIB_FREENECT_SRC}")
+set(LIB_FREENECT_BUILD "$ENV{LIB_FREENECT_BUILD}")
+
+include_directories(
+  "${LIB_FREENECT_SRC}/include"
+  "${LIB_FREENECT_SRC}/wrappers/opencv/"
+  "${LIB_FREENECT_SRC}/wrappers/c_sync/" )
+link_directories(
+  "${LIB_FREENECT_BUILD}/lib"
+  ${OpenCV_LIB_DIR_DBG}
+  ${OpenCV_LIB_DIR_OPT}
+)
 
 set(SRC
   main.cxx
@@ -39,6 +57,8 @@ set(SRC
   QVTKPolyViewWidget.cxx
 )
 
+link_libraries("freenect_cv")
+
 set(MOC
   CameraWidget.h
   DepthScannerMainWindow.h
@@ -46,12 +66,12 @@ set(MOC
 qt4_wrap_cpp(MOC_GENERATED ${MOC})
 
 SOURCE_GROUP("Generated" FILES ${MOCSrcs} ${RCS_SOURCES} )
- 
-add_executable(vtk_test
-    ${SRC}
-    ${MOC_GENERATED} 
+
+add_executable(
+  hephaestusscan
+  ${SRC}
+  ${MOC_GENERATED}
 )
-#add_library( vtk SHARED IMPORTED ${VTK_LIBRARIES} )
 
 LINK_DIRECTORIES(
   ${QT_LIBRARIES}
@@ -63,6 +83,11 @@ LINK_DIRECTORIES(
   )
 
 
-target_link_libraries( vtk_test ${VTK_LIBRARIES} QVTK ${QT_QTOPENGL_LIBRARY})
+target_link_libraries(
+  hephaestusscan
+  ${VTK_LIBRARIES}
+  QVTK
+  ${QT_QTOPENGL_LIBRARY}
+  ${OpenCV_LIBS})
 
 

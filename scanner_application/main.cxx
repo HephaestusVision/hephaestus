@@ -1,7 +1,10 @@
 /*
-  An example of a VTK-QT application.
+  Hephaestus Scanner Application / main.cxx
 
   Copyright 2012 University of North Carolina at Chapel Hill.
+
+	Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+    http://hephaestusvision.github.com/hephaestus/
 
   Licensed under the Apache License, Version 2.0 (the "License"); you
   may not use this file except in compliance with the License.  You

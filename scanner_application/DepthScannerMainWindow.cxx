@@ -43,54 +43,55 @@ static QAction * createAction(
   action->setStatusTip(tip);
   action->setToolTip(tip);
   QObject::connect(action, signal, receiver, slot);
-	return action;
+  return action;
 }
 
 static void alert(QWidget * parent, const char * s)
 {
-	QMessageBox::about(parent, QString(s), QString(s));
+  QMessageBox::about(parent, QString(s), QString(s));
 }
 
 static void updatePC(DepthScannerMainWindow * dsmw)
 {
   const PointCloud * pc = dsmw->cloudy->GetCurrentPointCloud();
-	if (pc == NULL)
-		return;
-	convertPointCloudToVtkPoly(pc, dsmw->pointCloud);
+  if (pc == NULL)
+    {
+    alert(dsmw, "NULL CurrentPointCloud");
+    return;
+    }
+  convertPointCloudToVtkPoly(pc, dsmw->pointCloud);
   dsmw->qVTKPolyViewWidget.newSource(dsmw->pointCloud);
 }
 
 void DepthScannerMainWindow::create()
 {
   this->cloudy->ClearPointCloud();
-	this->cloudy->CreatePointCloud();
-	updatePC(this);
-	//alert(this, "create");
+  this->cloudy->CreatePointCloud();
+  updatePC(this);
 }
 
 
 void DepthScannerMainWindow::update()
 {
   this->cloudy->UpdatePointCloud();
-	updatePC(this);
-	//	alert(this, "update");
+  updatePC(this);
 }
 
 void DepthScannerMainWindow::save()
 {
-	alert(this, "save");
+  alert(this, "save");
 }
 
 void DepthScannerMainWindow::load()
 {
-	alert(this, "load");
+  alert(this, "load");
 }
 
 DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
-	qApplication(app),
-	pointCloud(vtkPolyData::New()),
-	qVTKPolyViewWidget(pointCloud),
-	cloudy(new Cloudy())
+  qApplication(app),
+  pointCloud(vtkPolyData::New()),
+  qVTKPolyViewWidget(pointCloud),
+  cloudy(new Cloudy())
 {
   QToolBar * tool = this->addToolBar(QString("Tools"));
 
@@ -118,9 +119,9 @@ DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
   QHBoxLayout * horizontalLayout = new QHBoxLayout(centralwidget);
   horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
-	this->camera = new CameraWidget();
-	this->camera->resize(400,400);
-	this->camera->setMinimumSize (400,400);
+  this->camera = new CameraWidget();
+  this->camera->resize(400,400);
+  this->camera->setMinimumSize (400,400);
 
   horizontalLayout->addWidget(this->camera);
   horizontalLayout->addWidget(&qVTKPolyViewWidget);
@@ -135,7 +136,7 @@ DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
 
 DepthScannerMainWindow::~DepthScannerMainWindow()
 {
-	this->pointCloud->Delete();
-	delete this->camera;
-	delete this->cloudy;
+  this->pointCloud->Delete();
+  delete this->camera;
+  delete this->cloudy;
 }
