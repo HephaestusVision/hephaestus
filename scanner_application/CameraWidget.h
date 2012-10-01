@@ -3,7 +3,7 @@
 
   Copyright 2012 University of North Carolina at Chapel Hill.
 
-	Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+  Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
     http://hephaestusvision.github.com/hephaestus/
 
   Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -36,6 +36,7 @@ class CameraWidget : public QGLWidget {
 public:
   CameraWidget(QWidget * parent = NULL);
   ~CameraWidget();
+  bool isGood();
 protected:
   void initializeGL();
   void resizeGL(int w, int h);
@@ -48,6 +49,7 @@ private:
   CameraWidget& operator=(const CameraWidget &); // noncopyable resource
 
 private:
+  bool m_isGood;
   QTimer * timer;
   CvCapture * capture;
   _IplImage * image;

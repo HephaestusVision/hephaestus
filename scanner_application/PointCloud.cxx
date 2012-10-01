@@ -3,7 +3,7 @@
 
   Copyright 2012 University of North Carolina at Chapel Hill.
 
-	Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+  Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
     http://hephaestusvision.github.com/hephaestus/
 
   Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -19,9 +19,9 @@
   implied.  See the License for the specific language governing
   permissions and limitations under the License.
 
-	* * *
+  * * *
 
-	PointCloud is a simple class to represent point clouds AND meshes.
+  PointCloud is a simple class to represent point clouds AND meshes.
 */
 #include <cassert>
 #include <vector>

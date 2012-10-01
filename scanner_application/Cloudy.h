@@ -3,7 +3,7 @@
 
   Copyright 2012 University of North Carolina at Chapel Hill.
 
-	Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+  Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
     http://hephaestusvision.github.com/hephaestus/
 
   Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -19,9 +19,9 @@
   implied.  See the License for the specific language governing
   permissions and limitations under the License.
 
-	* * *
+  * * *
 
-	Cloudy is the glue between the Computer Vision code and the GUI.
+  Cloudy is the glue between the Computer Vision code and the GUI.
 */
 
 #ifndef CLOUDY_H
@@ -37,14 +37,16 @@ public:
   void UpdatePointCloud();
   void CreatePointCloud();
   void ClearPointCloud();
+  bool isGood();
 private:
   Cloudy(const Cloudy & c); // noncopyable resource
   Cloudy& operator=(const Cloudy & c); // noncopyable resource
 
   /* private instance variables */
+  bool m_isGood;
   _IplImage * rgbImage;
   _IplImage * depthImage;
-	PointCloud * pcloud;
+  PointCloud * pcloud;
 };
 
 #endif /* CLOUDY_H */

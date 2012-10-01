@@ -18,6 +18,30 @@
 */
 #include "QVTKPolyViewWidget.h"
 
+#include <cassert>
+
+#include <vtkActor.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRenderWindow.h>
+//#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+//#include <vtkInteractorStyleTrackballCamera.h>
+
+#include <vtkCamera.h>
+#include <vtkSmartPointer.h>
+#include <vtkXMLPolyDataReader.h>
+#include <vtkPolyDataReader.h>
+#include <vtkXMLPolyDataWriter.h>
+#include <vtkPolyDataWriter.h>
+
+#include <vtkVersion.h>
+#if VTK_MAJOR_VERSION <= 5
+#define setInputData(x,y) ((x)->SetInput(y))
+#else
+#define setInputData(x,y) ((x)->SetInputData(y))
+#endif
+
 QVTKPolyViewWidget::QVTKPolyViewWidget(vtkPolyData * src)
 {
     this->mapper = vtkPolyDataMapper::New();
@@ -41,11 +65,73 @@ QVTKPolyViewWidget::~QVTKPolyViewWidget()
     this->renderer->Delete();
     this->actor->Delete();
     this->mapper->Delete();
-    // this->polySource->Delete(); // don't take ownership of source
 }
+
+void QVTKPolyViewWidget::SetCamera(const double focalPoint[3], const double position[3], const double viewUp[3])
+{
+  vtkCamera * camera = this->renderer->GetActiveCamera();
+  assert(camera != NULL);
+  camera->SetFocalPoint(focalPoint);
+  camera->SetPosition(position);
+  camera->SetViewUp(viewUp);
+}
+
+void QVTKPolyViewWidget::GetCamera(double focalPoint[3], double position[3], double viewUp[3])
+{
+  vtkCamera * camera = this->renderer->GetActiveCamera();
+  assert(camera != NULL);
+  camera->GetFocalPoint(focalPoint);
+  camera->GetPosition(position);
+  camera->GetViewUp(viewUp);
+}
+
 void QVTKPolyViewWidget::newSource(vtkPolyData * newPolySource)
 {
     setInputData(this->mapper, newPolySource);
     this->renderWindow->Render();
-    // this->polySource->Delete(); // don't take ownership of source
+}
+
+void QVTKPolyViewWidget::saveVTK(QString filename, vtkPolyData * polyData)
+{
+  QByteArray filenameByteArray = filename.toUtf8();
+  if (filename.endsWith(".vtp") || filename.endsWith(".VTP"))
+    {
+    vtkSmartPointer< vtkXMLPolyDataWriter > writer =
+      vtkSmartPointer< vtkXMLPolyDataWriter >::New();
+    writer->SetFileName(filenameByteArray.constData());
+    setInputData(writer, polyData);
+    writer->Update();
+    }
+  else if (filename.endsWith(".vtk") || filename.endsWith(".VTK"))
+    {
+    vtkSmartPointer< vtkPolyDataWriter > writer =
+      vtkSmartPointer< vtkPolyDataWriter >::New();
+    writer->SetFileName(filenameByteArray.constData());
+    setInputData(writer, polyData);
+    writer->Update();
+    }
+}
+void QVTKPolyViewWidget::openVTK(QString filename, vtkPolyData * polyData)
+{
+  QByteArray filenameByteArray = filename.toUtf8();
+  if (filename.endsWith(".vtp") || filename.endsWith(".VTP"))
+    {
+    vtkSmartPointer< vtkXMLPolyDataReader > reader =
+      vtkSmartPointer< vtkXMLPolyDataReader >::New();
+    reader->SetFileName(filenameByteArray.constData());
+    reader->Update();
+    polyData->ShallowCopy(reader->GetOutput());
+    }
+  else if (filename.endsWith(".vtk") || filename.endsWith(".VTK"))
+    {
+    vtkSmartPointer< vtkPolyDataReader > reader =
+      vtkSmartPointer< vtkPolyDataReader >::New();
+    reader->SetFileName(filenameByteArray.constData());
+    reader->Update();
+    polyData->ShallowCopy(reader->GetOutput());
+    }
+  else
+    {
+    //alert(NULL,"huh?");
+    }
 }

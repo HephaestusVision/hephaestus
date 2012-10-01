@@ -1,9 +1,9 @@
 /*
-  DepthScannerMainWindow.h
+  CameraWidget.cxx
 
   Copyright 2012 University of North Carolina at Chapel Hill.
 
-	Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+  Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
     http://hephaestusvision.github.com/hephaestus/
 
   Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -20,7 +20,7 @@
   permissions and limitations under the License.
 */
 
-// a lot of source copied from 
+// a lot of source copied from
 //   http://rafaelpalomar.net/blog/2010/sep/25/displaying-opencv-webcam-output-using-qt-and-opengl
 
 #include "CameraWidget.h"
@@ -36,7 +36,8 @@
 #include "cv.h" // open-cv
 #include "libfreenect_cv.h" // open-kinect
 
-CameraWidget::CameraWidget(QWidget * parent) : QGLWidget(parent)
+CameraWidget::CameraWidget(QWidget * parent) :
+  QGLWidget(parent), m_isGood(false)
 {
   //Initialize variable members
   this->timer = new QTimer();
@@ -45,14 +46,23 @@ CameraWidget::CameraWidget(QWidget * parent) : QGLWidget(parent)
   connect(this->timer, SIGNAL(timeout()), this, SLOT(captureFrame()));
   //Start the timer scheduled for firing every 33ms (30fps)
   if (this->image != NULL)
+    {
     this->timer->start(33);
-  else
-    std::cerr 
-      << "freenect_sync_get_rgb_cv returns NULL.\n"
-      << "Probably unable to connect to the Kinect.  "
-      << "Is it plugged in?\n";
+    m_isGood = true;
+    }
+  // else
+    // std::cerr
+    //   << "freenect_sync_get_rgb_cv returns NULL.\n"
+    //   << "Probably unable to connect to the Kinect.  "
+    //   << "Is it plugged in?\n";
   //FIXME: better error handling.
  }
+
+bool CameraWidget::isGood()
+{
+  return this->m_isGood;
+}
+
 
 CameraWidget::~CameraWidget()
 {
@@ -64,12 +74,12 @@ void CameraWidget::initializeGL()
 {
   //Adjust the viewport
   glViewport(0,0,this->width(), this->height());
-  
+
   //Adjust the projection matrix
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(-this->width()/2,
-          this->width()/2, this->height()/2, -this->height()/2, -1, 1); 
+          this->width()/2, this->height()/2, -this->height()/2, -1, 1);
 }
 
 void CameraWidget::resizeGL(int w, int h) { }
@@ -100,7 +110,7 @@ void CameraWidget::mouseMoveEvent(QMouseEvent *event) { }
 void CameraWidget::keyPressEvent(QKeyEvent *event) { }
 
 void CameraWidget::captureFrame()
-{ 
+{
   this->image = freenect_sync_get_rgb_cv(0);
-  glDraw(); 
+  glDraw();
 }

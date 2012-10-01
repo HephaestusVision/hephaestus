@@ -3,7 +3,7 @@
 
   Copyright 2012 University of North Carolina at Chapel Hill.
 
-	Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+  Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
     http://hephaestusvision.github.com/hephaestus/
 
   Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -53,11 +53,16 @@ static void alert(const char * s)
 
 
 Cloudy::Cloudy(/* FIXME: constructor arguments? */):
-  rgbImage(NULL), depthImage(NULL), pcloud(NULL) { }
+  rgbImage(NULL), depthImage(NULL), pcloud(NULL), m_isGood(false) { }
 
 Cloudy::~Cloudy()
 {
-	delete this->pcloud;
+  delete this->pcloud;
+}
+
+bool Cloudy::isGood()
+{
+  return this->m_isGood;
 }
 
 PointCloud const * Cloudy::GetCurrentPointCloud() const
@@ -98,13 +103,13 @@ static PointCloud * depth_image_to_point_cloud(
 
   int point_index = 0;
 
-  unsigned char *colorVals = (unsigned char*)(rgbImage->imageData);
+  unsigned char * colorVals = (unsigned char*)(rgbImage->imageData);
 
   for (int i = 0; i < rows; ++i)
     {
     for (int j = 0; j < columns; ++j)
       {
-      double depthVal = depthValues[(i * columns) + j];
+      double depthVal = static_cast<double>(depthValues[(i * columns) + j]);
       if ((depthVal < infinity) && (point_index < (3 * points)))
         {
         double scaleFactor = 0.1; //100?
@@ -138,7 +143,7 @@ static PointCloud * depth_image_to_point_cloud(
   return pc;
 }
 void Cloudy::UpdatePointCloud() {
-	alert("FIXME: update");
+  alert("FIXME: update");
 }
 
 void Cloudy::CreatePointCloud() {
@@ -146,7 +151,11 @@ void Cloudy::CreatePointCloud() {
   if (this->rgbImage)
     cvCvtColor(this->rgbImage, this->rgbImage, CV_RGB2BGR);
   else
-    alert("Error: Kinect not connected?");
+    {
+    this->m_isGood = false;
+    return;
+    //alert("Error: Kinect not connected?");
+    }
   this->depthImage = freenect_sync_get_depth_cv(0);
   PointCloud * newcloud =
     depth_image_to_point_cloud(this->rgbImage, this->depthImage);
@@ -158,10 +167,11 @@ void Cloudy::CreatePointCloud() {
                               // does this get called?
       this->pcloud = newcloud;
     }
+  this->m_isGood = true;
 }
 void Cloudy::ClearPointCloud() {
-	delete this->pcloud;
-	this->pcloud = NULL;
+  delete this->pcloud;
+  this->pcloud = NULL;
 }
 
 

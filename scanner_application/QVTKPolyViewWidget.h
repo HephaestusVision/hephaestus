@@ -16,34 +16,28 @@
   implied.  See the License for the specific language governing
   permissions and limitations under the License.
 */
-#ifndef __QVTKPolyViewWidget_h__
-#define __QVTKPolyViewWidget_h__
+#ifndef QVTKPOLYVIEWWIDGET_H
+#define QVTKPOLYVIEWWIDGET_H
 
-#include <vtkSmartPointer.h>
-#include <vtkActor.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkSphereSource.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkPointData.h>
-#include <vtkUnsignedCharArray.h>
-#include <vtkVersion.h>
-#if VTK_MAJOR_VERSION <= 5
-#define setInputData(x,y) ((x)->SetInput(y))
-#else
-#define setInputData(x,y) ((x)->SetInputData(y))
-#endif
+class vtkPolyData;
+class vtkPolyDataMapper;
+class vtkActor;
+class vtkRenderWindow;
+class vtkRenderer;
 
 #include <QVTKWidget.h>
+#include <QString>
 
 class QVTKPolyViewWidget : public QVTKWidget {
 public:
   QVTKPolyViewWidget(vtkPolyData * src);
   virtual ~QVTKPolyViewWidget();
   void newSource(vtkPolyData * newPolySource);
+  static void openVTK(QString filename, vtkPolyData * polyData);
+  static void saveVTK(QString filename, vtkPolyData * polyData);
+  void SetCamera(const double FocalPoint[3], const double position[3], const double viewUp[3]);
+  void GetCamera(double FocalPoint[3], double position[3], double viewUp[3]);
+
 private:
   QVTKPolyViewWidget(const QVTKPolyViewWidget &);
   QVTKPolyViewWidget& operator=(const QVTKPolyViewWidget &);
@@ -54,5 +48,4 @@ private:
   vtkRenderer * renderer;
 };
 
-
-#endif // __QVTKPolyViewWidget_h__
+#endif /* QVTKPOLYVIEWWIDGET_H */
