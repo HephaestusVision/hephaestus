@@ -15,14 +15,26 @@
 #   implied.  See the License for the specific language governing
 #   permissions and limitations under the License.
 
+# YOU MUST set the VTK_DIR, OpenCV_DIR, LIB_FREENECT_SRC, and
+# LIB_FREENECT_BUILD variables.
+
 cmake_minimum_required(VERSION 2.6)
 
 project( hephaestusscan )
 
+set( VTK_DIR            "" CACHE PATH "location of VTK libraries" )
+set( OpenCV_DIR         "" CACHE PATH "location of OpenCV libraries" )
+set( LIB_FREENECT_SRC   "" CACHE PATH "location of libfreenext source" )
+set( LIB_FREENECT_BUILD "" CACHE PATH "location of libfreenext libraries" )
+
 set(CMAKE_BUILD_TYPE debug)
 set(CMAKE_CXX_FLAGS "-g -Wall")
 
-#set the VTK_DIR variable
+find_package(PCL 1.3 REQUIRED COMPONENTS common io search)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
@@ -33,13 +45,9 @@ include(${QT_USE_FILE})
 find_package(OpenCV REQUIRED)
 
 ## build openkinect/LibFreenect with
-## cmake -DBUILD_CV:BOOL="1" -DOpenCV_DIR:PATH="/home/hal/build/OpenCV"
-
-set(LIB_FREENECT_SRC "$ENV{LIB_FREENECT_SRC}")
-set(LIB_FREENECT_BUILD "$ENV{LIB_FREENECT_BUILD}")
-
+## cmake -DBUILD_CV:BOOL="1" -DOpenCV_DIR:PATH="...path-to.../build/OpenCV"
 include_directories(
-  "${LIB_FREENECT_SRC}/include"
+  "${LIB_FREENECT_SRC}/include/"
   "${LIB_FREENECT_SRC}/wrappers/opencv/"
   "${LIB_FREENECT_SRC}/wrappers/c_sync/" )
 link_directories(
@@ -82,12 +90,15 @@ LINK_DIRECTORIES(
   ${QT_MAIN_LIBRARY}
   )
 
-
 target_link_libraries(
   hephaestusscan
   ${VTK_LIBRARIES}
   QVTK
   ${QT_QTOPENGL_LIBRARY}
-  ${OpenCV_LIBS})
-
-
+  ${OpenCV_LIBS}
+  ${PCL_COMMON_LIBRARIES}
+  ${PCL_IO_LIBRARIES}
+  ${PCL_KDTREE_LIBRARY}
+  ${PCL_SEARCH_LIBRARY}
+  ${PCL_SURFACE_LIBRARY}
+  ${PCL_FEATURES_LIBRARY} )
