@@ -24,6 +24,7 @@
 
 #include <QMainWindow>
 #include "QVTKPolyViewWidget.h"
+#include "LoginDialog.h"
 class QApplication;
 class Cloudy;
 class CameraWidget;
@@ -39,12 +40,14 @@ public slots:
   void update();
   void save();
   void load();
+  void upload();
 public:
   QApplication * qApplication;
   vtkPolyData * pointCloud;
   QVTKPolyViewWidget qVTKPolyViewWidget ;
   Cloudy * cloudy;
   CameraWidget * camera;
+	LoginDialog loginDialog;
 private:
   DepthScannerMainWindow(const DepthScannerMainWindow &);
   DepthScannerMainWindow& operator=(const DepthScannerMainWindow &);

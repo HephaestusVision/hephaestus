@@ -53,7 +53,7 @@ static void alert(const char * s)
 
 
 Cloudy::Cloudy(/* FIXME: constructor arguments? */):
-  rgbImage(NULL), depthImage(NULL), pcloud(NULL), m_isGood(false) { }
+  m_isGood(false), rgbImage(NULL), depthImage(NULL), pcloud(NULL) { }
 
 Cloudy::~Cloudy()
 {

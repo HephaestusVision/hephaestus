@@ -67,22 +67,25 @@ QVTKPolyViewWidget::~QVTKPolyViewWidget()
     this->mapper->Delete();
 }
 
-void QVTKPolyViewWidget::SetCamera(const double focalPoint[3], const double position[3], const double viewUp[3])
+void QVTKPolyViewWidget::SetCamera(const double focalPoint[3], const double position[3], const double viewUp[3], double viewAngle)
 {
   vtkCamera * camera = this->renderer->GetActiveCamera();
   assert(camera != NULL);
   camera->SetFocalPoint(focalPoint);
   camera->SetPosition(position);
   camera->SetViewUp(viewUp);
+  camera->SetViewAngle(viewAngle);
+
 }
 
-void QVTKPolyViewWidget::GetCamera(double focalPoint[3], double position[3], double viewUp[3])
+void QVTKPolyViewWidget::GetCamera(double focalPoint[3], double position[3], double viewUp[3], double * viewAngle)
 {
   vtkCamera * camera = this->renderer->GetActiveCamera();
   assert(camera != NULL);
   camera->GetFocalPoint(focalPoint);
   camera->GetPosition(position);
   camera->GetViewUp(viewUp);
+  *viewAngle = camera->GetViewAngle();
 }
 
 void QVTKPolyViewWidget::newSource(vtkPolyData * newPolySource)

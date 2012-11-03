@@ -24,6 +24,7 @@
 #include <QHBoxLayout>
 #include <QFileDialog>
 #include <QString>
+ #include <QTemporaryFile>
 
 #include <vtkPolyData.h>
 
@@ -31,6 +32,7 @@
 #include "Cloudy.h"
 #include "PointCloud.h"
 #include "CameraWidget.h"
+#include "MidasUpload.h"
 
 static QAction * createAction(
   char const * name,
@@ -69,6 +71,17 @@ static void updatePC(DepthScannerMainWindow * dsmw)
   dsmw->qVTKPolyViewWidget.newSource(dsmw->pointCloud);
 }
 
+void DepthScannerMainWindow::upload() {
+	QTemporaryFile tempfile ( "hephaestus_temp_XXXXXX.vtp" );
+	if (! tempfile.open()) {
+		std::cerr << "error creating QTemporaryFile\n\n";
+		return;
+	}
+	QString fileName = tempfile.fileName();
+	tempfile.close();
+  QVTKPolyViewWidget::saveVTK(fileName, this->pointCloud);
+	upload_to_midas(&(this->loginDialog), fileName);
+}
 void DepthScannerMainWindow::create()
 {
   this->cloudy->ClearPointCloud();
@@ -98,22 +111,28 @@ void DepthScannerMainWindow::load()
      tr("Open VTK File"), "", tr("VTK Files (*.vtk *.vtp)"));
   QVTKPolyViewWidget::openVTK(fileName, this->pointCloud);
 
+  double FocalPoint[3] = {0.0, 0.0, 1.0};
+  double position[3] = {0.0, 0.0, -0.0};
+  double viewUp[3] = {0.0, -1.0, 0.0};
+	double viewAngle = 45.0;
+  this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
   //void SetCamera(const double FocalPoint[3], const double position[3], const double viewUp[3]);
-  double FocalPoint[3];
-  double position[3];
-  double viewUp[3];
-  this->qVTKPolyViewWidget.GetCamera(FocalPoint, position, viewUp);
-  std::cout
-    << FocalPoint[0] << '\t' << FocalPoint[1] << '\t' << FocalPoint[2] << '\n'
-    << position[0] << '\t' << position[1] << '\t' << position[2] << '\n'
-    << viewUp[0] << '\t' << viewUp[1] << '\t' << viewUp[2] << '\n';
+  // double FocalPoint[3];
+  // double position[3];
+  // double viewUp[3];
+  // this->qVTKPolyViewWidget.GetCamera(FocalPoint, position, viewUp);
+  // std::cout
+  //   << FocalPoint[0] << '\t' << FocalPoint[1] << '\t' << FocalPoint[2] << '\n'
+  //   << position[0] << '\t' << position[1] << '\t' << position[2] << '\n'
+  //   << viewUp[0] << '\t' << viewUp[1] << '\t' << viewUp[2] << '\n';
 }
 
 DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
   qApplication(app),
   pointCloud(vtkPolyData::New()),
   qVTKPolyViewWidget(pointCloud),
-  cloudy(new Cloudy())
+  cloudy(new Cloudy()),
+	loginDialog(this)
 {
   QToolBar * tool = this->addToolBar(QString("Tools"));
 
@@ -137,6 +156,10 @@ DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
     createAction("&Load", this, QKeySequence(Qt::CTRL + Qt::Key_L),
       "load from file.  Ctrl-l", SIGNAL(triggered()), SLOT(load())));
 
+  tool->addAction(
+    createAction("U&pload", this, QKeySequence(Qt::CTRL + Qt::Key_P),
+      "upload to server.  Ctrl-p", SIGNAL(triggered()), SLOT(upload())));
+
   QWidget * centralwidget = new QWidget(this);
   QHBoxLayout * horizontalLayout = new QHBoxLayout(centralwidget);
   horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -154,10 +177,10 @@ DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
   this->adjustSize();
   this->show();
 
-  double FocalPoint[3] = {0.0, 0.0, 1.0};
-  double position[3] = {0.0, 0.0, 0.0};
-  double viewUp[3] = {0.0, 1.0, 0.0};
-  this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp);
+  // double FocalPoint[3] = {0.0, 0.0, 1.0};
+  // double position[3] = {0.0, 0.0, 0.0};
+  // double viewUp[3] = {0.0, -1.0, 0.0};
+  // this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp);
 }
 
 DepthScannerMainWindow::~DepthScannerMainWindow()

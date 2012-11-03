@@ -39,8 +39,11 @@ find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
 set(QT_USE_OPENGL TRUE)
-find_package(Qt4 REQUIRED)
+set(QT_USE_QTSCRIPT TRUE)
+set(QT_USE_QTNETWORK TRUE)
+find_package(Qt4 COMPONENTS QtCore QtGui QtNetwork QtScript REQUIRED)
 include(${QT_USE_FILE})
+add_definitions(${QT_DEFINITIONS})
 
 find_package(OpenCV REQUIRED)
 
@@ -63,6 +66,9 @@ set(SRC
   DepthScannerMainWindow.cxx
   PointCloud.cxx
   QVTKPolyViewWidget.cxx
+  PickFolder.cxx
+  LoginDialog.cxx
+  MidasUpload.cxx
 )
 
 link_libraries("freenect_cv")
@@ -70,6 +76,8 @@ link_libraries("freenect_cv")
 set(MOC
   CameraWidget.h
   DepthScannerMainWindow.h
+  PickFolder.h
+  LoginDialog.h
 )
 qt4_wrap_cpp(MOC_GENERATED ${MOC})
 
@@ -81,19 +89,27 @@ add_executable(
   ${MOC_GENERATED}
 )
 
-LINK_DIRECTORIES(
-  ${QT_LIBRARIES}
-  ${QT_LIBRARY_DIR}
-  ${QT_QTOPENGL_LIBRARY}
-  ${QT_QTGUI_LIBRARY}
-  ${QT_QTCORE_LIBRARY}
-  ${QT_MAIN_LIBRARY}
-  )
+# message( STATUS  ${QT_LIBRARIES} )
+# message( STATUS  ${QT_LIBRARY_DIR} )
+# message( STATUS  ${QT_QTOPENGL_LIBRARY} )
+# message( STATUS  ${QT_QTGUI_LIBRARY} )
+# message( STATUS  ${QT_QTCORE_LIBRARY} )
+# message( STATUS  ${QT_MAIN_LIBRARY} )
+#  ${QT_LIBRARIES}
+
+# LINK_DIRECTORIES(
+#   ${QT_LIBRARY_DIR}
+#   ${QT_QTOPENGL_LIBRARY}
+#   ${QT_QTGUI_LIBRARY}
+#   ${QT_QTCORE_LIBRARY}
+#   ${QT_MAIN_LIBRARY}
+#   )
 
 target_link_libraries(
   hephaestusscan
   ${VTK_LIBRARIES}
   QVTK
+  ${QT_QTSCRIPT_LIBRARY}
   ${QT_QTOPENGL_LIBRARY}
   ${OpenCV_LIBS}
   ${PCL_COMMON_LIBRARIES}
