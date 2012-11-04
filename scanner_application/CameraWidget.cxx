@@ -36,17 +36,17 @@
 #include "cv.h" // open-cv
 #include "libfreenect_cv.h" // open-kinect
 
-CameraWidget::CameraWidget(QWidget * parent) :
-  QGLWidget(parent), m_isGood(false)
+CameraWidget::CameraWidget(QWidget * parent, int cameraIndex) :
+  QGLWidget(parent), cameraIndex(cameraIndex), m_isGood(false)
 {
   //Initialize variable members
   this->timer = new QTimer();
-  this->image = freenect_sync_get_rgb_cv(0);
+  this->image = freenect_sync_get_rgb_cv(this->cameraIndex);
   //Connect the timer signal with the capture action
-  connect(this->timer, SIGNAL(timeout()), this, SLOT(captureFrame()));
   //Start the timer scheduled for firing every 33ms (30fps)
   if (this->image != NULL)
     {
+    connect(this->timer, SIGNAL(timeout()), this, SLOT(captureFrame()));
     this->timer->start(33);
     m_isGood = true;
     }
@@ -78,8 +78,7 @@ void CameraWidget::initializeGL()
   //Adjust the projection matrix
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-this->width()/2,
-          this->width()/2, this->height()/2, -this->height()/2, -1, 1);
+  glOrtho(-this->width()/2, this->width()/2, this->height()/2, -this->height()/2, -1, 1);
 }
 
 void CameraWidget::resizeGL(int w, int h) { }
@@ -111,6 +110,6 @@ void CameraWidget::keyPressEvent(QKeyEvent *event) { }
 
 void CameraWidget::captureFrame()
 {
-  this->image = freenect_sync_get_rgb_cv(0);
+  this->image = freenect_sync_get_rgb_cv(this->cameraIndex);
   glDraw();
 }

@@ -34,7 +34,7 @@ struct _IplImage;
 class CameraWidget : public QGLWidget {
   Q_OBJECT // include this if you use Qt signals/slots
 public:
-  CameraWidget(QWidget * parent = NULL);
+  CameraWidget(QWidget * parent = NULL, int cameraIndex=0);
   ~CameraWidget();
   bool isGood();
 protected:
@@ -49,6 +49,7 @@ private:
   CameraWidget& operator=(const CameraWidget &); // noncopyable resource
 
 private:
+	int cameraIndex;
   bool m_isGood;
   QTimer * timer;
   CvCapture * capture;

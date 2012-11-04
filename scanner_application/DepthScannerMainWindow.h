@@ -33,20 +33,27 @@ class vtkPolyData;
 class DepthScannerMainWindow : public QMainWindow {
   Q_OBJECT
 public:
-  DepthScannerMainWindow(QApplication * app);
+  DepthScannerMainWindow();
   ~DepthScannerMainWindow();
 public slots:
+	// function executed when  you click Create
   void create();
+	// function executed when you click Update
   void update();
+	// function executed when  you click Save
   void save();
+	// function executed when  you click Load
   void load();
+	// function executed when  you click Upload
   void upload();
 public:
-  QApplication * qApplication;
   vtkPolyData * pointCloud;
   QVTKPolyViewWidget qVTKPolyViewWidget ;
   Cloudy * cloudy;
   CameraWidget * camera;
+
+	// The LoginDialog is hidden when it completes, but should keep the
+	// data fields populated.
 	LoginDialog loginDialog;
 private:
   DepthScannerMainWindow(const DepthScannerMainWindow &);

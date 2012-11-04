@@ -127,8 +127,7 @@ void DepthScannerMainWindow::load()
   //   << viewUp[0] << '\t' << viewUp[1] << '\t' << viewUp[2] << '\n';
 }
 
-DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
-  qApplication(app),
+DepthScannerMainWindow::DepthScannerMainWindow():
   pointCloud(vtkPolyData::New()),
   qVTKPolyViewWidget(pointCloud),
   cloudy(new Cloudy()),
@@ -136,9 +135,12 @@ DepthScannerMainWindow::DepthScannerMainWindow(QApplication * app):
 {
   QToolBar * tool = this->addToolBar(QString("Tools"));
 
+  // tool->addAction(
+  //   createAction("E&xit", app, QKeySequence(Qt::CTRL + Qt::Key_Q),
+  //     "Exit application. Ctrl-q", SIGNAL(triggered()), SLOT(quit())));
   tool->addAction(
-    createAction("E&xit", app, QKeySequence(Qt::CTRL + Qt::Key_Q),
-      "Exit application. Ctrl-q", SIGNAL(triggered()), SLOT(quit())));
+    createAction("E&xit", this, QKeySequence(Qt::CTRL + Qt::Key_Q),
+      "Exit application. Ctrl-q", SIGNAL(triggered()), SLOT(close())));
 
   tool->addAction(
     createAction("&Create", this, QKeySequence(Qt::CTRL + Qt::Key_N),

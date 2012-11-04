@@ -1,3 +1,24 @@
+/*
+  MidasUpload.cxx
+
+  Copyright 2012 University of North Carolina at Chapel Hill.
+
+  Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+    http://hephaestusvision.github.com/hephaestus/
+
+  Licensed under the Apache License, Version 2.0 (the "License"); you
+  may not use this file except in compliance with the License.  You
+  may obtain a copy of the License at
+
+    LICENSE.txt in this repository or
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  implied.  See the License for the specific language governing
+  permissions and limitations under the License.
+*/
 #include <iostream>
 #include <cassert>
 
@@ -25,22 +46,22 @@
 #include "MidasUpload.h"
 
 /**
-	 converts a JSON strinng into a QVariant structure.  VERY
-	 UNSAFE---the evaluate method is vulnerable to arbitrary code
-	 injections.!
-	 
+   converts a JSON strinng into a QVariant structure.  VERY
+   UNSAFE---the evaluate method is vulnerable to arbitrary code
+   injections.!
+   
 */
 QVariant parseJson(QByteArray & json) {
   QScriptEngine scriptEngine;
-	QScriptValue result = scriptEngine.evaluate("(" + QString(json) + ")");
-	if (scriptEngine.hasUncaughtException()){
-		std::cerr << json.constData() << '\n';
-		return QVariant(); // (! variant.isValid())
-	}
+  QScriptValue result = scriptEngine.evaluate("(" + QString(json) + ")");
+  if (scriptEngine.hasUncaughtException()){
+    std::cerr << json.constData() << '\n';
+    return QVariant(); // (! variant.isValid())
+  }
   return result.toVariant();
 }
 /*
-	
+  
 */
 QVariant getJson(const QUrl & url)
 {
@@ -50,8 +71,8 @@ QVariant getJson(const QUrl & url)
   QEventLoop eventLoop;
   QObject::connect(networkReply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
   eventLoop.exec();
-	QByteArray reply = networkReply->readAll();
-	return parseJson(reply);
+  QByteArray reply = networkReply->readAll();
+  return parseJson(reply);
 }
 
 QVariant putJson(
@@ -59,28 +80,28 @@ QVariant putJson(
 {
   QNetworkAccessManager networkAccessManager(NULL);
   QNetworkRequest networkRequest(url);
-	networkRequest.setHeader(
-		QNetworkRequest::ContentTypeHeader, "application/octet-stream");
+  networkRequest.setHeader(
+    QNetworkRequest::ContentTypeHeader, "application/octet-stream");
   QFile infile(filename);
   infile.open( QIODevice::ReadOnly );
   QNetworkReply * networkReply
-		= networkAccessManager.post(networkRequest,&infile);
+    = networkAccessManager.post(networkRequest,&infile);
   QEventLoop eventLoop;
   QObject::connect(networkReply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
   eventLoop.exec();
-	QByteArray reply = networkReply->readAll();
-	return parseJson(reply);
+  QByteArray reply = networkReply->readAll();
+  return parseJson(reply);
 }
 
 /**
-	 for debugging.
+   for debugging.
 */
 std::ostream & print(std::ostream & o, QVariant const & qvariant, int n) {
   for (int j = 0; j < (4 * n) ; j++) o << ' ';
-	if (qvariant.isNull())
-		return o << "NULL\n";
-	if (!qvariant.isValid())
-		return o << "<invalid>\n";
+  if (qvariant.isNull())
+    return o << "NULL\n";
+  if (!qvariant.isValid())
+    return o << "<invalid>\n";
   switch(qvariant.type())
     {
     case QVariant::Bool:
@@ -101,7 +122,7 @@ std::ostream & print(std::ostream & o, QVariant const & qvariant, int n) {
           o << '"' << iterator.key().toUtf8().constData() << '"' << ":\n";
           print(o, iterator.value(), n + 1);
         }
-			break;
+      break;
     case QVariant::List:
       {
         o << "list:" << '\n';
@@ -109,12 +130,12 @@ std::ostream & print(std::ostream & o, QVariant const & qvariant, int n) {
         for (int i = 0; i < vlist.size(); ++i)
           print(o, vlist.at(i), n + 1);
       }
-			break;
+      break;
     default:
-			o << qvariant.typeName () << '\t';
-			return o << "????" << '\n';
+      o << qvariant.typeName () << '\t';
+      return o << "????" << '\n';
     }
-	return o;
+  return o;
 }
 
 /**
@@ -138,8 +159,8 @@ bool isokay(QVariant & v, QString what) {
 }
 
 /**
-	 Given a set of login information, get a list of visible folders on
-	 the server.
+   Given a set of login information, get a list of visible folders on
+   the server.
 */
 QList< MidasFolder > get_list_of_folders(
   QString server, QString appname,
@@ -150,9 +171,9 @@ QList< MidasFolder > get_list_of_folders(
   QUrl url;
   url.setUrl(server);
   url.addQueryItem("method","midas.version");
-	#ifdef VERBOSE
-	std::cerr << qPrintable(url.toString()) << "\n\n";
-	#endif
+  #ifdef VERBOSE
+  std::cerr << qPrintable(url.toString()) << "\n\n";
+  #endif
   QVariant r = getJson(url);
   if (! isokay(r, QString("connecting to server at ") + server))
     return list_of_folders;
@@ -162,9 +183,9 @@ QList< MidasFolder > get_list_of_folders(
   url.addQueryItem("appname", appname);
   url.addQueryItem("email", email);
   url.addQueryItem("apikey", appkey);
-	#ifdef VERBOSE
+  #ifdef VERBOSE
   std::cerr << qPrintable(url.toString()) << "\n\n";
-	#endif
+  #endif
   r = getJson(url);
   if (! isokay(r, "midas.login"))
     return list_of_folders;
@@ -174,9 +195,9 @@ QList< MidasFolder > get_list_of_folders(
   url.setUrl(server);
   url.addQueryItem("method","midas.community.list");
   url.addQueryItem("token", token);
-	#ifdef VERBOSE
+  #ifdef VERBOSE
   std::cerr << qPrintable(url.toString()) << "\n\n";
-	#endif
+  #endif
   r = getJson(url);
   if (! isokay(r, "midas.community.list"))
     return list_of_folders;
@@ -191,58 +212,72 @@ QList< MidasFolder > get_list_of_folders(
     url.addQueryItem("token", token);
     url.addQueryItem("id", community_id);
     #ifdef VERBOSE
-		std::cerr << qPrintable(url.toString()) << "\n\n";
-	  #endif
+    std::cerr << qPrintable(url.toString()) << "\n\n";
+    #endif
     r = getJson(url);
+    //print(std::cerr, r);
     if (! isokay(r, "midas.community.children"))
       return list_of_folders;
     QList< QVariant > folder_list = 
       r.toMap()["data"].toMap()["folders"].toList();
     for (int j = 0; j < folder_list.size(); ++j)
       {
-      QString folder_name = folder_list[j].toMap()["name"].toString();
-      QString folder_id = folder_list[j].toMap()["folder_id"].toString();
-      QString fullname = community_name + "/" + folder_name;
-      list_of_folders.append(MidasFolder(
-        server, token, folder_id, fullname, true));
+      QString policy =  folder_list[j].toMap()["policy"].toString();
+      if (policy != "0") // writable folder // MIDAS documentation?????
+        {
+        QString folder_name = folder_list[j].toMap()["name"].toString();
+        QString folder_id = folder_list[j].toMap()["folder_id"].toString();
+        QString fullname = community_name + "/" + folder_name;
+        list_of_folders.append(
+          MidasFolder(server, token, folder_id, fullname, true));
+        }
       }
     }
   
   url.setUrl(server);
   url.addQueryItem("method","midas.user.folders");
   url.addQueryItem("token", token);
-	#ifdef VERBOSE
+  #ifdef VERBOSE
   std::cerr << qPrintable(url.toString()) << "\n\n";
-	#endif
+  #endif
   r = getJson(url);
   if (! isokay(r, "midas.user.folders"))
     return list_of_folders;
   data = r.toMap()["data"].toList();
   for (int i = 0; i < data.size(); ++i)
     {
-    QString name = data[i].toMap()["name"].toString();
-    QString folder_id = data[i].toMap()["folder_id"].toString();
-    list_of_folders.append(MidasFolder(
-      server, token, folder_id, name, false));
+    QString policy =  data[i].toMap()["policy"].toString();
+    if (policy != "0") // writable folder // MIDAS documentation?????
+      {
+      QString name = data[i].toMap()["name"].toString();
+      QString folder_id = data[i].toMap()["folder_id"].toString();
+      list_of_folders.append(
+        MidasFolder(server, token, folder_id, name, false));
+      }
+    // /////FIXME
+    // std::cerr << "===================== " << qPrintable(name) << " | "
+    //           << qPrintable(folder_id) << '\n';
+    // print(std::cerr, data[i]);
+    // std::cerr << "=====================\n";
     }
   return list_of_folders;
 }
 
 
 void runDialog(QDialog * dialog) {
-	assert(dialog != NULL);
+  assert(dialog != NULL);
   QEventLoop eventLoop;
   QObject::connect(dialog, SIGNAL(finished(int)), &eventLoop, SLOT(quit()));
-	dialog->show();
+  dialog->show();
   dialog->raise();
   dialog->activateWindow();
   eventLoop.exec();
 }
 
 bool upload_to_midas_folder(const MidasFolder * folder,
-														QString & filename,
-														QString & fileDescriptor) {
-	QString file_size = QString::number(QFileInfo(filename).size());
+                            QString & filename,
+                            QString & fileDescriptor) {
+  QString file_size = QString::number(QFileInfo(filename).size());
 
   QUrl url;
   url.setUrl(folder->server);
@@ -251,9 +286,9 @@ bool upload_to_midas_folder(const MidasFolder * folder,
   url.addQueryItem("folderid",folder->id);
   url.addQueryItem("itemname",fileDescriptor);
   url.addQueryItem("filename",fileDescriptor);
-	#ifdef VERBOSE
+  #ifdef VERBOSE
   std::cerr << qPrintable(url.toString()) << "\n\n";
-	#endif
+  #endif
   QVariant r = getJson(url);
   if (! isokay(r, "midas.upload.generatetoken"))
     return false;
@@ -264,36 +299,36 @@ bool upload_to_midas_folder(const MidasFolder * folder,
   url.addQueryItem("uploadtoken",uploadtoken);
   url.addQueryItem("filename",fileDescriptor);
   url.addQueryItem("length",file_size);
-	#ifdef VERBOSE
+  #ifdef VERBOSE
   std::cerr << qPrintable(url.toString()) << "\n\n";
-	#endif
+  #endif
   r = putJson(url,filename);
   return isokay(r, "midas.upload.perform");
 }
 
 void upload_to_midas(LoginDialog * loginDialog, QString & filename) {
-	runDialog(loginDialog);
-	if (!loginDialog->isGood()) {
-		std::cerr << "! loginDialog->isGood()\n\n";
-		return;
-	}
-	QString server  = loginDialog->server();
+  runDialog(loginDialog);
+  if (!loginDialog->isGood()) {
+    std::cerr << "! loginDialog->isGood()\n\n";
+    return;
+  }
+  QString server  = loginDialog->server();
   QString appname = loginDialog->appname();
   QString email   = loginDialog->email();
   QString apikey  = loginDialog->apikey();
   QString fileDescriptor  = loginDialog->descriptor();
 
-	QList< MidasFolder > list_of_folders = 
-		get_list_of_folders(server, appname, email, apikey);
+  QList< MidasFolder > list_of_folders = 
+    get_list_of_folders(server, appname, email, apikey);
 
-	//  PickFolder pick_folder(loginDialog->parent(), &list_of_folders);
+  //  PickFolder pick_folder(loginDialog->parent(), &list_of_folders);
   PickFolder pick_folder(NULL, &list_of_folders);
-	runDialog(&pick_folder);
+  runDialog(&pick_folder);
 
   const MidasFolder * folder = pick_folder.getFolder();
   if (folder == NULL) {
-		std::cerr << "PickFolder failed\n\n";
+    std::cerr << "PickFolder failed\n\n";
     return;
-	}
-	upload_to_midas_folder(folder, filename, fileDescriptor);
+  }
+  upload_to_midas_folder(folder, filename, fileDescriptor);
 }

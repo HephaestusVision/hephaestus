@@ -1,5 +1,30 @@
-#ifndef QTP_H
-#define QTP_H
+/*
+  MidasUpload.h
+
+  Copyright 2012 University of North Carolina at Chapel Hill.
+
+  Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
+    http://hephaestusvision.github.com/hephaestus/
+
+  Licensed under the Apache License, Version 2.0 (the "License"); you
+  may not use this file except in compliance with the License.  You
+  may obtain a copy of the License at
+
+    LICENSE.txt in this repository or
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  implied.  See the License for the specific language governing
+  permissions and limitations under the License.
+
+  * * *
+
+  several functions to manage connections to a Midas server.
+*/
+#ifndef MIDASUPLOAD_H
+#define MIDASUPLOAD_H
 
 #include <iostream>
 class QString;
@@ -28,19 +53,22 @@ QList< MidasFolder > get_list_of_folders(
   QString server, QString appname,
   QString email, QString appkey);
 
-/* waits till a dialog emits the finished() signal */
+/**
+	 waits till a dialog emits the finished() signal
+*/
 void runDialog(QDialog * dialog);
 
-/** perform upload */
+/**
+	 perform upload
+*/
 bool upload_to_midas_folder(const MidasFolder * folder,
 														QString & filename,
 														QString & fileDescriptor);
 
-/** The fnction you want to call */
+/**
+ The fnction you want to call
+*/
 void upload_to_midas(LoginDialog * loginDialog, QString & filename);
 
 
-#endif /* QTP_H */
-
-
-
+#endif /* MIDASUPLOAD_H */

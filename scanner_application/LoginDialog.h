@@ -1,5 +1,5 @@
 /*
-  Hephaestus Scanner Application /
+  Hephaestus Scanner Application / LoginDialog.h
 
   Copyright 2012 University of North Carolina at Chapel Hill.
 
@@ -28,6 +28,8 @@
 #include <QString>
 
 /**
+	 Dialog to ask for server URL, appname, email, apikey, and file
+	 descriptor.
  */
 
 class LoginDialog: public QDialog {
@@ -37,7 +39,7 @@ private:
   QLineEdit * lineEdit_appname; // "scanner"
   QLineEdit * lineEdit_email;   // "halcanary@gmail.com"
   QLineEdit * lineEdit_apikey;  // "TUZvgO8aDYbv9NkDgUPrGeWMD6vgxCmhmcCsQAsj" 
-	QLineEdit * lineEdit_descriptor;
+	QLineEdit * lineEdit_descriptor; // "filename.vtp"
   bool m_isGood;
 public:
   LoginDialog(QWidget * parent);
