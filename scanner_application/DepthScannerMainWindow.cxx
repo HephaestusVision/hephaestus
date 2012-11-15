@@ -16,6 +16,8 @@
   implied.  See the License for the specific language governing
   permissions and limitations under the License.
 */
+#include <cstdlib>
+
 #include <QObject>
 #include <QToolBar>
 #include <QAction>
@@ -24,7 +26,8 @@
 #include <QHBoxLayout>
 #include <QFileDialog>
 #include <QString>
- #include <QTemporaryFile>
+#include <QTemporaryFile>
+#include <QGroupBox>
 
 #include <vtkPolyData.h>
 
@@ -71,16 +74,17 @@ static void updatePC(DepthScannerMainWindow * dsmw)
   dsmw->qVTKPolyViewWidget.newSource(dsmw->pointCloud);
 }
 
-void DepthScannerMainWindow::upload() {
-	QTemporaryFile tempfile ( "hephaestus_temp_XXXXXX.vtp" );
-	if (! tempfile.open()) {
-		std::cerr << "error creating QTemporaryFile\n\n";
-		return;
-	}
-	QString fileName = tempfile.fileName();
-	tempfile.close();
+void DepthScannerMainWindow::upload()
+{
+  QTemporaryFile tempfile ( "hephaestus_temp_XXXXXX.vtp" );
+  if (! tempfile.open()) {
+    std::cerr << "error creating QTemporaryFile\n\n";
+    return;
+  }
+  QString fileName = tempfile.fileName();
+  tempfile.close();
   QVTKPolyViewWidget::saveVTK(fileName, this->pointCloud);
-	upload_to_midas(&(this->loginDialog), fileName);
+  upload_to_midas(&(this->loginDialog), fileName);
 }
 void DepthScannerMainWindow::create()
 {
@@ -90,7 +94,7 @@ void DepthScannerMainWindow::create()
   double FocalPoint[3] = {0.0, 0.0, 1.0};
   double position[3] = {0.0, 0.0, -0.0};
   double viewUp[3] = {0.0, -1.0, 0.0};
-	double viewAngle = 45.0;
+  double viewAngle = 45.0;
   this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
 }
 
@@ -119,7 +123,7 @@ void DepthScannerMainWindow::load()
   double FocalPoint[3] = {0.0, 0.0, 1.0};
   double position[3] = {0.0, 0.0, -0.0};
   double viewUp[3] = {0.0, -1.0, 0.0};
-	double viewAngle = 45.0;
+  double viewAngle = 45.0;
   this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
   //void SetCamera(const double FocalPoint[3], const double position[3], const double viewUp[3]);
   // double FocalPoint[3];
@@ -133,10 +137,11 @@ void DepthScannerMainWindow::load()
 }
 
 DepthScannerMainWindow::DepthScannerMainWindow():
+  QMainWindow(),
   pointCloud(vtkPolyData::New()),
   qVTKPolyViewWidget(pointCloud),
   cloudy(new Cloudy()),
-	loginDialog(this)
+  loginDialog(this)
 {
   QToolBar * tool = this->addToolBar(QString("Tools"));
 
@@ -171,11 +176,22 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   QHBoxLayout * horizontalLayout = new QHBoxLayout(centralwidget);
   horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
-  this->camera = new CameraWidget();
-  this->camera->resize(400,400);
-  this->camera->setMinimumSize (400,400);
+  const int camera_width = 320; // half-size camera
+  const int camera_height = 240;
 
-  horizontalLayout->addWidget(this->camera);
+  this->camera = new CameraWidget();
+  this->camera->resize(camera_width,camera_height);
+  this->camera->setMinimumSize(camera_width,camera_height);
+  this->camera->setMaximumSize(camera_width,camera_height);
+
+  const char CAMERA_LABEL [] = "Camera View";
+  QGroupBox * cameraBox = new QGroupBox(this);
+  cameraBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  cameraBox->setTitle(QString::fromUtf8(CAMERA_LABEL));
+  QHBoxLayout * horizontalLayout2 = new QHBoxLayout(cameraBox);
+  horizontalLayout2->addWidget(this->camera);
+
+  horizontalLayout->addWidget(cameraBox);
   horizontalLayout->addWidget(&qVTKPolyViewWidget);
   this->setCentralWidget(centralwidget);
 
@@ -189,10 +205,10 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   // double viewUp[3] = {0.0, -1.0, 0.0};
   // this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp);
 
-	char * infinity = getenv ( "HEPHAESTUS_INFINITY" ); //millimeters
-	short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;
-	if (v > 0)
-		this->cloudy->setMaximimDepth(v);
+  // char * infinity = std::getenv ( "HEPHAESTUS_INFINITY" ); //millimeters
+  // short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;
+  // if (v > 0)
+  //  this->cloudy->setMaximimDepth(v);
 
 }
 

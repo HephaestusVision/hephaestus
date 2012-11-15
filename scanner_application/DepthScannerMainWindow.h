@@ -36,15 +36,15 @@ public:
   DepthScannerMainWindow();
   ~DepthScannerMainWindow();
 public slots:
-	// function executed when  you click Create
+  // function executed when  you click Create
   void create();
-	// function executed when you click Update
+  // function executed when you click Update
   void update();
-	// function executed when  you click Save
+  // function executed when  you click Save
   void save();
-	// function executed when  you click Load
+  // function executed when  you click Load
   void load();
-	// function executed when  you click Upload
+  // function executed when  you click Upload
   void upload();
 public:
   vtkPolyData * pointCloud;
@@ -52,9 +52,9 @@ public:
   Cloudy * cloudy;
   CameraWidget * camera;
 
-	// The LoginDialog is hidden when it completes, but should keep the
-	// data fields populated.
-	LoginDialog loginDialog;
+  // The LoginDialog is hidden when it completes, but should keep the
+  // data fields populated.
+  LoginDialog loginDialog;
 private:
   DepthScannerMainWindow(const DepthScannerMainWindow &);
   DepthScannerMainWindow& operator=(const DepthScannerMainWindow &);

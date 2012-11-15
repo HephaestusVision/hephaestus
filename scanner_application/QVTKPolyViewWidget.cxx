@@ -34,6 +34,9 @@
 #include <vtkPolyDataReader.h>
 #include <vtkXMLPolyDataWriter.h>
 #include <vtkPolyDataWriter.h>
+#include <vtkSmartPointer.h>
+#include <vtkTextActor.h>
+#include <vtkTextProperty.h>
 
 #include <vtkVersion.h>
 #if VTK_MAJOR_VERSION <= 5
@@ -53,6 +56,15 @@ QVTKPolyViewWidget::QVTKPolyViewWidget(vtkPolyData * src)
     this->actor->SetMapper(this->mapper);
     this->renderWindow->AddRenderer(this->renderer);
     this->renderer->AddActor(this->actor);
+
+    vtkSmartPointer<vtkTextActor> textActor = 
+      vtkSmartPointer<vtkTextActor>::New();
+    textActor->SetInput ( "rendered object" );
+    textActor->GetTextProperty()->SetFontSize ( 20 );
+    textActor->SetPosition ( 10, 10 );
+    textActor->GetTextProperty()->SetColor ( 0.8,0.8,0.8 );
+    this->renderer->AddActor2D ( textActor );
+
     this->renderer->ResetCamera();
     this->resize(480, 480);
     this->setMinimumSize(480, 480);
@@ -90,8 +102,8 @@ void QVTKPolyViewWidget::GetCamera(double focalPoint[3], double position[3], dou
 
 void QVTKPolyViewWidget::newSource(vtkPolyData * newPolySource)
 {
-    setInputData(this->mapper, newPolySource);
-    this->renderWindow->Render();
+  setInputData(this->mapper, newPolySource);
+  this->renderWindow->Render();
 }
 
 void QVTKPolyViewWidget::saveVTK(QString filename, vtkPolyData * polyData)
