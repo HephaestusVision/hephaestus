@@ -87,6 +87,11 @@ void DepthScannerMainWindow::create()
   this->cloudy->ClearPointCloud();
   this->cloudy->CreatePointCloud();
   updatePC(this);
+  double FocalPoint[3] = {0.0, 0.0, 1.0};
+  double position[3] = {0.0, 0.0, -0.0};
+  double viewUp[3] = {0.0, -1.0, 0.0};
+	double viewAngle = 45.0;
+  this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
 }
 
 
@@ -183,6 +188,12 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   // double position[3] = {0.0, 0.0, 0.0};
   // double viewUp[3] = {0.0, -1.0, 0.0};
   // this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp);
+
+	char * infinity = getenv ( "HEPHAESTUS_INFINITY" ); //millimeters
+	short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;
+	if (v > 0)
+		this->cloudy->setMaximimDepth(v);
+
 }
 
 DepthScannerMainWindow::~DepthScannerMainWindow()

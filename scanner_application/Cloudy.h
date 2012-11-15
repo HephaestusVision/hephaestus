@@ -38,12 +38,17 @@ public:
   void CreatePointCloud();
   void ClearPointCloud();
   bool isGood();
+	/** units of milimeters */
+	short MaximimDepth();
+	/** units of milimeters */
+	void setMaximimDepth(short);
 private:
   Cloudy(const Cloudy & c); // noncopyable resource
   Cloudy& operator=(const Cloudy & c); // noncopyable resource
 
   /* private instance variables */
   bool m_isGood;
+	short m_MaximimDepth;
   _IplImage * rgbImage;
   _IplImage * depthImage;
   PointCloud * pcloud;

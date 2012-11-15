@@ -70,7 +70,7 @@ int convertPointCloudToVtkPoly(const PointCloud * cloud, vtkPolyData * output)
 
     vtkSmartPointer<vtkUnsignedCharArray> colorArray =
       vtkSmartPointer<vtkUnsignedCharArray>::New();
-    colorArray->SetName("RGB");
+    colorArray->SetName("rgb_colors");
     colorArray->SetNumberOfComponents(3);
     colorArray->SetNumberOfTuples(numPoints);
     for (vtkIdType ptId = 0 ; ptId < numPoints; ++ptId)

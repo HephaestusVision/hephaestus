@@ -51,14 +51,19 @@ static void alert(const char * s)
     std::cerr << s << '\n';
 }
 
+static const short DEFAULT_MAXIMIM_DEPTH = 2047;
 
 Cloudy::Cloudy(/* FIXME: constructor arguments? */):
-  m_isGood(false), rgbImage(NULL), depthImage(NULL), pcloud(NULL) { }
+  m_isGood(false), m_MaximimDepth(DEFAULT_MAXIMIM_DEPTH),
+  rgbImage(NULL), depthImage(NULL), pcloud(NULL) { }
 
 Cloudy::~Cloudy()
 {
   delete this->pcloud;
 }
+
+short Cloudy::MaximimDepth() { return this->m_MaximimDepth; }
+void Cloudy::setMaximimDepth(short v) { this->m_MaximimDepth = v; }
 
 bool Cloudy::isGood()
 {
@@ -70,8 +75,11 @@ PointCloud const * Cloudy::GetCurrentPointCloud() const
   return this->pcloud;
 }
 
+
 static PointCloud * depth_image_to_point_cloud(
-  _IplImage const * rgbImage, _IplImage const * depthImage)
+  _IplImage const * rgbImage,
+  _IplImage const * depthImage,
+  short infinity)
 {
   if (rgbImage == NULL || depthImage == NULL)
     return NULL;
@@ -79,8 +87,7 @@ static PointCloud * depth_image_to_point_cloud(
   int columns = depthImage->width;
   short *depthValues = (short*)(depthImage->imageData);
   int points = 0;
-  int maxDepth = -1;
-  short infinity = 2047;
+  // int maxDepth = -1;
   for (int i = 0; i < rows; ++i)
     {
     for (int j = 0; j < columns; ++j)
@@ -89,10 +96,10 @@ static PointCloud * depth_image_to_point_cloud(
       if (depthVal < infinity)
         {
         ++points;
-        if(depthVal > maxDepth)
-          {
-          maxDepth = depthVal;
-          }
+        // if(depthVal > maxDepth)
+        //   {
+        //   maxDepth = depthVal;
+        //   }
         }
       }
     }
@@ -158,7 +165,8 @@ void Cloudy::CreatePointCloud() {
     }
   this->depthImage = freenect_sync_get_depth_cv(0);
   PointCloud * newcloud =
-    depth_image_to_point_cloud(this->rgbImage, this->depthImage);
+    depth_image_to_point_cloud(
+      this->rgbImage, this->depthImage, this->MaximimDepth());
 
   if (newcloud != NULL)
     {
