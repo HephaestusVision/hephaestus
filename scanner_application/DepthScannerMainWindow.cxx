@@ -96,6 +96,7 @@ void DepthScannerMainWindow::create()
   double viewUp[3] = {0.0, -1.0, 0.0};
   double viewAngle = 45.0;
   this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
+  this->qVTKPolyViewWidget.ResetCamera();
 }
 
 
@@ -125,6 +126,7 @@ void DepthScannerMainWindow::load()
   double viewUp[3] = {0.0, -1.0, 0.0};
   double viewAngle = 45.0;
   this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
+  this->qVTKPolyViewWidget.ResetCamera();
   //void SetCamera(const double FocalPoint[3], const double position[3], const double viewUp[3]);
   // double FocalPoint[3];
   // double position[3];

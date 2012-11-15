@@ -37,6 +37,7 @@ public:
   static void saveVTK(QString filename, vtkPolyData * polyData);
   void SetCamera(const double FocalPoint[3], const double position[3], const double viewUp[3], double viewAngle);
   void GetCamera(double FocalPoint[3], double position[3], double viewUp[3], double * viewAngle);
+	void ResetCamera();
 
 private:
   QVTKPolyViewWidget(const QVTKPolyViewWidget &);

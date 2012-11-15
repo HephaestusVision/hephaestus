@@ -100,6 +100,12 @@ void QVTKPolyViewWidget::GetCamera(double focalPoint[3], double position[3], dou
   *viewAngle = camera->GetViewAngle();
 }
 
+void QVTKPolyViewWidget::ResetCamera()
+{
+	this->renderer->ResetCamera();
+}
+
+
 void QVTKPolyViewWidget::newSource(vtkPolyData * newPolySource)
 {
   setInputData(this->mapper, newPolySource);
