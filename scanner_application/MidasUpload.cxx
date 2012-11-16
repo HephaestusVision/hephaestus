@@ -274,18 +274,21 @@ void runDialog(QDialog * dialog) {
   eventLoop.exec();
 }
 
-bool upload_to_midas_folder(const MidasFolder * folder,
-                            QString & filename,
-                            QString & fileDescriptor) {
+bool upload_to_midas_folder(
+  const MidasFolder * folder,
+  QString & filename,
+  QString & fileDescriptor,
+  QString & file_suffix)
+{
   QString file_size = QString::number(QFileInfo(filename).size());
-
+  QString upload_filename = fileDescriptor + file_suffix;
   QUrl url;
   url.setUrl(folder->server);
   url.addQueryItem("method","midas.upload.generatetoken");
-  url.addQueryItem("token",folder->token);
-  url.addQueryItem("folderid",folder->id);
-  url.addQueryItem("itemname",fileDescriptor);
-  url.addQueryItem("filename",fileDescriptor);
+  url.addQueryItem("token", folder->token);
+  url.addQueryItem("folderid", folder->id);
+  url.addQueryItem("itemname", fileDescriptor);
+  url.addQueryItem("filename", upload_filename);
   #ifdef VERBOSE
   std::cerr << qPrintable(url.toString()) << "\n\n";
   #endif
@@ -297,7 +300,7 @@ bool upload_to_midas_folder(const MidasFolder * folder,
   url.setUrl(folder->server);
   url.addQueryItem("method","midas.upload.perform");
   url.addQueryItem("uploadtoken",uploadtoken);
-  url.addQueryItem("filename",fileDescriptor);
+  url.addQueryItem("filename",upload_filename);
   url.addQueryItem("length",file_size);
   #ifdef VERBOSE
   std::cerr << qPrintable(url.toString()) << "\n\n";
@@ -306,7 +309,8 @@ bool upload_to_midas_folder(const MidasFolder * folder,
   return isokay(r, "midas.upload.perform");
 }
 
-void upload_to_midas(LoginDialog * loginDialog, QString & filename) {
+void upload_to_midas(
+  LoginDialog * loginDialog, QString & filename, QString & file_suffix) {
   runDialog(loginDialog);
   if (!loginDialog->isGood()) {
     std::cerr << "! loginDialog->isGood()\n\n";
@@ -330,5 +334,5 @@ void upload_to_midas(LoginDialog * loginDialog, QString & filename) {
     std::cerr << "PickFolder failed\n\n";
     return;
   }
-  upload_to_midas_folder(folder, filename, fileDescriptor);
+  upload_to_midas_folder(folder, filename, fileDescriptor, file_suffix);
 }

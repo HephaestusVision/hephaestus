@@ -57,14 +57,6 @@ QVTKPolyViewWidget::QVTKPolyViewWidget(vtkPolyData * src)
     this->renderWindow->AddRenderer(this->renderer);
     this->renderer->AddActor(this->actor);
 
-    vtkSmartPointer<vtkTextActor> textActor = 
-      vtkSmartPointer<vtkTextActor>::New();
-    textActor->SetInput ( "rendered object" );
-    textActor->GetTextProperty()->SetFontSize ( 20 );
-    textActor->SetPosition ( 10, 10 );
-    textActor->GetTextProperty()->SetColor ( 0.8,0.8,0.8 );
-    this->renderer->AddActor2D ( textActor );
-
     this->renderer->ResetCamera();
     this->resize(480, 480);
     this->setMinimumSize(480, 480);

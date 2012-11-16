@@ -37,6 +37,11 @@
 #include "CameraWidget.h"
 #include "MidasUpload.h"
 
+static const char CAMERA_LABEL [] = "Camera View";
+static const char POLYVIEW_LABEL [] = "Rendered Object";
+static const char WINDOW_TITLE [] = "Hephaestus Scanner";
+
+
 static QAction * createAction(
   char const * name,
   QObject * receiver,
@@ -82,9 +87,10 @@ void DepthScannerMainWindow::upload()
     return;
   }
   QString fileName = tempfile.fileName();
+  QString suffix(".vtp");
   tempfile.close();
   QVTKPolyViewWidget::saveVTK(fileName, this->pointCloud);
-  upload_to_midas(&(this->loginDialog), fileName);
+  upload_to_midas(&(this->loginDialog), fileName, suffix);
 }
 void DepthScannerMainWindow::create()
 {
@@ -121,21 +127,22 @@ void DepthScannerMainWindow::load()
      tr("Open VTK File"), "", tr("VTK Files (*.vtk *.vtp)"));
   QVTKPolyViewWidget::openVTK(fileName, this->pointCloud);
 
-  double FocalPoint[3] = {0.0, 0.0, 1.0};
-  double position[3] = {0.0, 0.0, -0.0};
+  double FocalPoint[3] = {0.0, 0.0, 0.1};
+  double position[3] = {0.0, 0.0, 0.0};
   double viewUp[3] = {0.0, -1.0, 0.0};
   double viewAngle = 45.0;
   this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
   this->qVTKPolyViewWidget.ResetCamera();
-  //void SetCamera(const double FocalPoint[3], const double position[3], const double viewUp[3]);
-  // double FocalPoint[3];
-  // double position[3];
-  // double viewUp[3];
-  // this->qVTKPolyViewWidget.GetCamera(FocalPoint, position, viewUp);
+  // this->qVTKPolyViewWidget.GetCamera(
+  //   FocalPoint, position, viewUp, &viewAngle);
   // std::cout
-  //   << FocalPoint[0] << '\t' << FocalPoint[1] << '\t' << FocalPoint[2] << '\n'
-  //   << position[0] << '\t' << position[1] << '\t' << position[2] << '\n'
-  //   << viewUp[0] << '\t' << viewUp[1] << '\t' << viewUp[2] << '\n';
+  //   << FocalPoint[0] << '\t' << FocalPoint[1]
+  //   << '\t' << FocalPoint[2] << '\n'
+  //   << position[0] << '\t' << position[1]
+  //   << '\t' << position[2] << '\n'
+  //   << viewUp[0] << '\t' << viewUp[1]
+  //   << '\t' << viewUp[2] << '\n'
+  //   << viewAngle;  
 }
 
 DepthScannerMainWindow::DepthScannerMainWindow():
@@ -178,34 +185,37 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   QHBoxLayout * horizontalLayout = new QHBoxLayout(centralwidget);
   horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
-  const int camera_width = 320; // half-size camera
-  const int camera_height = 240;
+  const int camera_widget_width = 320; // half-size camera
+  const int camera_widget_height = 240;
 
   this->camera = new CameraWidget();
-  this->camera->resize(camera_width,camera_height);
-  this->camera->setMinimumSize(camera_width,camera_height);
-  this->camera->setMaximumSize(camera_width,camera_height);
+  this->camera->resize(camera_widget_width,camera_widget_height);
+  this->camera->setMinimumSize(camera_widget_width,camera_widget_height);
+  this->camera->setMaximumSize(camera_widget_width,camera_widget_height);
 
-  const char CAMERA_LABEL [] = "Camera View";
   QGroupBox * cameraBox = new QGroupBox(this);
   cameraBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
   cameraBox->setTitle(QString::fromUtf8(CAMERA_LABEL));
   QHBoxLayout * horizontalLayout2 = new QHBoxLayout(cameraBox);
   horizontalLayout2->addWidget(this->camera);
 
+
+  QGroupBox * qVTKPolyViewBox = new QGroupBox(this);
+  // qVTKPolyViewBox->setSizePolicy(
+  //   QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+  qVTKPolyViewBox->setTitle(QString::fromUtf8(POLYVIEW_LABEL));
+  QHBoxLayout * horizontalLayout3 = new QHBoxLayout(qVTKPolyViewBox);
+  horizontalLayout3->addWidget(&(this->qVTKPolyViewWidget));
+
   horizontalLayout->addWidget(cameraBox);
-  horizontalLayout->addWidget(&qVTKPolyViewWidget);
+  horizontalLayout->addWidget(qVTKPolyViewBox);
+  //horizontalLayout->addWidget(&(this->qVTKPolyViewWidget));
   this->setCentralWidget(centralwidget);
 
-  this->setWindowTitle("Hephaestus");
+  this->setWindowTitle(WINDOW_TITLE);
 
   this->adjustSize();
   this->show();
-
-  // double FocalPoint[3] = {0.0, 0.0, 1.0};
-  // double position[3] = {0.0, 0.0, 0.0};
-  // double viewUp[3] = {0.0, -1.0, 0.0};
-  // this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp);
 
   char * infinity = std::getenv ( "HEPHAESTUS_INFINITY" ); //millimeters
   short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;

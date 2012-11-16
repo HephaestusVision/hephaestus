@@ -88,22 +88,26 @@ void CameraWidget::paintGL()
   //Clear the color buffer
   glClear(GL_COLOR_BUFFER_BIT);
 
-  //Set the raster position
-  /*  The position seems to be the inverse because the rendering is
-      affected by the glPixelZoom call. */
-  glRasterPos2i(-this->width()/2,-this->height()/2);
-
-  //Invert the image (the data coming from OpenCV is inverted)
-  glPixelZoom(
-    static_cast<double>(this->width()) / static_cast<double>(this->image->width),
-    -static_cast<double>(this->height()) / static_cast<double>(this->image->height) );
-
-  //Draw image from OpenCV capture
   if (this->image != NULL)
+    {
+    //Set the raster position
+    /*  The position seems to be the inverse because the rendering is
+        affected by the glPixelZoom call. */
+    glRasterPos2i(-this->width()/2,-this->height()/2);
+  
+    //Invert the image (the data coming from OpenCV is inverted)
+    glPixelZoom(
+      static_cast<double>(this->width()) / 
+      static_cast<double>(this->image->width),
+      -static_cast<double>(this->height()) /
+      static_cast<double>(this->image->height) );
+
+    //Draw image from OpenCV capture
     glDrawPixels(
       this->image->width,
       this->image->height, GL_RGB, GL_UNSIGNED_BYTE,
       this->image->imageData);
+    }
 }
 void CameraWidget::mousePressEvent(QMouseEvent *event) { }
 void CameraWidget::mouseMoveEvent(QMouseEvent *event) { }

@@ -46,29 +46,32 @@ std::ostream & print(std::ostream &, QVariant const &, int n = 0);
 bool isokay(QVariant & v, QString what);
 
 /**
-	 Given a set of login information, get a list of visible folders on
-	 the server.
+   Given a set of login information, get a list of visible folders on
+   the server.
 */
 QList< MidasFolder > get_list_of_folders(
   QString server, QString appname,
   QString email, QString appkey);
 
 /**
-	 waits till a dialog emits the finished() signal
+   waits till a dialog emits the finished() signal
 */
 void runDialog(QDialog * dialog);
 
 /**
-	 perform upload
+   perform upload
 */
-bool upload_to_midas_folder(const MidasFolder * folder,
-														QString & filename,
-														QString & fileDescriptor);
+bool upload_to_midas_folder(
+  const MidasFolder * folder,
+  QString & filename,
+  QString & fileDescriptor,
+  QString & file_suffix);
 
 /**
  The fnction you want to call
 */
-void upload_to_midas(LoginDialog * loginDialog, QString & filename);
+void upload_to_midas(
+  LoginDialog * loginDialog, QString & filename, QString & file_suffix);
 
 
 #endif /* MIDASUPLOAD_H */
