@@ -45,7 +45,8 @@
 #define setInputData(x,y) ((x)->SetInputData(y))
 #endif
 
-QVTKPolyViewWidget::QVTKPolyViewWidget(vtkPolyData * src)
+QVTKPolyViewWidget::QVTKPolyViewWidget(QWidget *parent, vtkPolyData * src) :
+	QVTKWidget(parent)
 {
     this->mapper = vtkPolyDataMapper::New();
     this->actor = vtkActor::New();
@@ -100,7 +101,8 @@ void QVTKPolyViewWidget::ResetCamera()
 
 void QVTKPolyViewWidget::newSource(vtkPolyData * newPolySource)
 {
-  setInputData(this->mapper, newPolySource);
+	this->polySource = newPolySource;
+  setInputData(this->mapper, this->polySource);
   this->renderWindow->Render();
 }
 

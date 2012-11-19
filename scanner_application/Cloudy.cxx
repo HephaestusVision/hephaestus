@@ -23,6 +23,7 @@
 #include "Cloudy.h"
 #include "PointCloud.h"
 
+
 #include <QCoreApplication>
 #include <QApplication>
 #include <QMessageBox>
@@ -39,8 +40,8 @@
 #include <cxcore.h>
 #include <highgui.h>
 
-using namespace cv;
 using namespace std;
+using namespace cv;
 
 
 static void alert(const char * s)

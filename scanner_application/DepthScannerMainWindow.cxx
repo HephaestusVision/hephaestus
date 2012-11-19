@@ -76,6 +76,8 @@ static void updatePC(DepthScannerMainWindow * dsmw)
     return;
     }
   convertPointCloudToVtkPoly(pc, dsmw->pointCloud);
+  //blobify(pc, dsmw->pointCloud);
+  //blobify2(pc, dsmw->pointCloud);
   dsmw->qVTKPolyViewWidget.newSource(dsmw->pointCloud);
 }
 
@@ -148,7 +150,7 @@ void DepthScannerMainWindow::load()
 DepthScannerMainWindow::DepthScannerMainWindow():
   QMainWindow(),
   pointCloud(vtkPolyData::New()),
-  qVTKPolyViewWidget(pointCloud),
+  qVTKPolyViewWidget(this, pointCloud),
   cloudy(new Cloudy()),
   loginDialog(this)
 {
