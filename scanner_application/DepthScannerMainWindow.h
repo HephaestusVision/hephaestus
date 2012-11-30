@@ -29,6 +29,7 @@
 #include <QMainWindow>
 #include "QVTKPolyViewWidget.h"
 #include "LoginDialog.h"
+#include "Parameters.h"
 class QApplication;
 class Cloudy;
 class CameraWidget;
@@ -61,7 +62,11 @@ public slots:
   /**
     function executed when  you click Upload.  Calls upload_to_midas() */
   void upload();
+  /**
+    function executed when  you click Settings.   */
+  void settings();
 public:
+	Parameters parameters;
   vtkPolyData * pointCloud;
   QVTKPolyViewWidget qVTKPolyViewWidget ;
   Cloudy * cloudy;

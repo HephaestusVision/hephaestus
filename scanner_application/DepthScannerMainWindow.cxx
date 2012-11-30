@@ -94,8 +94,18 @@ void DepthScannerMainWindow::upload()
   QVTKPolyViewWidget::saveVTK(fileName, this->pointCloud);
   upload_to_midas(&(this->loginDialog), fileName, suffix);
 }
+
+void DepthScannerMainWindow::settings()
+{
+  this->parameters.show();
+  this->parameters.raise();
+  this->parameters.activateWindow();
+}
 void DepthScannerMainWindow::create()
 {
+  this->cloudy->setMaximimDepth(
+    parameters.getParameter("Infinity in millimeters").toInt());
+
   this->cloudy->ClearPointCloud();
   this->cloudy->CreatePointCloud();
   updatePC(this);
@@ -110,6 +120,9 @@ void DepthScannerMainWindow::create()
 
 void DepthScannerMainWindow::update()
 {
+  this->cloudy->setMaximimDepth(
+    parameters.getParameter("Infinity in millimeters").toInt());
+
   this->cloudy->UpdatePointCloud();
   updatePC(this);
 }
@@ -149,6 +162,7 @@ void DepthScannerMainWindow::load()
 
 DepthScannerMainWindow::DepthScannerMainWindow():
   QMainWindow(),
+  parameters("HephaestusVision", "HephaestusScanner"),
   pointCloud(vtkPolyData::New()),
   qVTKPolyViewWidget(this, pointCloud),
   cloudy(new Cloudy()),
@@ -182,6 +196,10 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   tool->addAction(
     createAction("U&pload", this, QKeySequence(Qt::CTRL + Qt::Key_P),
       "upload to server.  Ctrl-p", SIGNAL(triggered()), SLOT(upload())));
+
+  tool->addAction(
+    createAction("Settings", this, QKeySequence(Qt::CTRL + Qt::Key_T),
+      "Change settings.  Ctrl-t", SIGNAL(triggered()), SLOT(settings())));
 
   QWidget * centralwidget = new QWidget(this);
   QHBoxLayout * horizontalLayout = new QHBoxLayout(centralwidget);
@@ -219,11 +237,14 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   this->adjustSize();
   this->show();
 
-  char * infinity = std::getenv ( "HEPHAESTUS_INFINITY" ); //millimeters
-  short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;
-  if (v > 0)
-   this->cloudy->setMaximimDepth(v);
+  parameters.setDefault("Infinity in millimeters","2047");
+  this->cloudy->setMaximimDepth(
+    parameters.getParameter("Infinity in millimeters").toInt());
 
+  // char * infinity = std::getenv ( "HEPHAESTUS_INFINITY" ); //millimeters
+  // short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;
+  // if (v > 0)
+  //this->cloudy->setMaximimDepth(v);
 }
 
 DepthScannerMainWindow::~DepthScannerMainWindow()

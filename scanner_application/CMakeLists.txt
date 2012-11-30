@@ -69,6 +69,7 @@ set(SRC
   PickFolder.cxx
   LoginDialog.cxx
   MidasUpload.cxx
+  Parameters.cxx
 )
 
 link_libraries("freenect_cv")
@@ -78,6 +79,7 @@ set(MOC
   DepthScannerMainWindow.h
   PickFolder.h
   LoginDialog.h
+  Parameters.h
 )
 qt4_wrap_cpp(MOC_GENERATED ${MOC})
 

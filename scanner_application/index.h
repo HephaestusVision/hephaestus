@@ -10,6 +10,7 @@
 	-	MidasFolder
 	-	PointCloud
 	-	Cloudy
+  - Parameters
 
 	Plus a header file containing non-class routines:
 	-	MidasUpload.h
@@ -17,7 +18,8 @@
 
 The program is structured as a QT application.  As such, the classes
 DepthScannerMainWindow, QVTKPolyViewWidget, CameraWidget, LoginDialog,
-and PickFolder are subclasses of QT Widgets that do specific things.  
+PickFolder, and Parameters are subclasses of QT Widgets that do
+specific things.
 
 The MidasFolder and PointCloud classes are little more than structs
 inteded to hold related information together.
