@@ -30,6 +30,8 @@ struct _IplImage;
 class vtkPolyData;
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+class Parameters;
+#include <vector>
 
 /**
   Cloudy is the glue between the Computer Vision code and the GUI.
@@ -37,7 +39,7 @@ class vtkPolyData;
 class Cloudy {
 public:
   /** Constructor */
-  Cloudy(/* FIXME: constructor arguments? */);
+  Cloudy(Parameters * parameters = NULL);
   virtual ~Cloudy();
 
   // /**
@@ -70,23 +72,16 @@ public:
      non-NULL value?  I.e. is the Kinect connected?
   */
   bool isGood();
-  /**
-     @return current maximum depth value in units of milimeters.
-   */
-  short MaximimDepth();
-  /**
-     @param depth_in_millimeters Set the maximum depth value in units
-     of milimeters.
-   */
-  void setMaximimDepth(short depth_in_millimeters);
+
 private:
   Cloudy(const Cloudy & c); // noncopyable resource
   Cloudy& operator=(const Cloudy & c); // noncopyable resource
 
   /* private instance variables */
   bool m_isGood;
-  short m_MaximimDepth;
   pcl::PointCloud<pcl::PointXYZRGBNormal> * pointCloud;
+	Parameters * parameters;
+	std::vector<double> lookup_table;
 };
 
 /**
@@ -101,7 +96,8 @@ private:
 pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
   _IplImage const * rgbImage,
   _IplImage const * depthImage,
-  short infinity);
+  short infinity,
+  const std::vector<double> & lookup_table);
 
 /**
    Function to convert to vtkPolyData. Overwrites output object.

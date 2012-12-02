@@ -21,8 +21,7 @@
 */
 
 #include "Cloudy.h"
-//#include "PointCloud.h"
-
+#include "Parameters.h"
 
 #include <QCoreApplication>
 #include <QApplication>
@@ -36,7 +35,6 @@
 #include <vector>
 #include <cmath>
 #include <pthread.h>
-#include <math.h>
 #include <cxcore.h>
 #include <highgui.h>
 
@@ -48,6 +46,13 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnsignedCharArray.h>
+
+#include <Eigen/Core>
+#include <Eigen/Dense>
+using namespace Eigen;
+
+#define print(a) std::cerr << (#a) << ": " << (a) << '\n';
+
 
 using namespace std;
 using namespace cv;
@@ -64,25 +69,45 @@ static void alert(const char * s)
 
 static const short DEFAULT_MAXIMIM_DEPTH = 2047;
 
-Cloudy::Cloudy(/* FIXME: constructor arguments? */):
-  m_isGood(false),
-  m_MaximimDepth(DEFAULT_MAXIMIM_DEPTH),
-  pointCloud(NULL)
+static void build_lookup_table(std::vector<double> & table)
 {
+  static const double k1 = 1.1863;
+  static const double k2 = 3.5180299032541777e-4;
+  static const double k3 = 0.1236;
+  static const int N = 2048;
+  table.clear();
+  table.reserve(N);
+  for (int i = 0; i < N; ++i)
+    table[i] = k3 * std::tan((k2 * static_cast<double>(i)) + k1);
+}
+
+static short meters_to_depth(double meters)
+{
+  static const double k1 = -1.1863;
+  static const double k2 = 2842.5;
+  static const double k3 = 8.090614886731391;
+  short s = 1 + static_cast<short>( (std::atan( meters * k3 ) + k1) * k2);
+  if (s > DEFAULT_MAXIMIM_DEPTH)
+    s = DEFAULT_MAXIMIM_DEPTH;
+  return s;
+}
+
+
+Cloudy::Cloudy(Parameters * parameters):
+  m_isGood(false),
+  pointCloud(NULL),
+  parameters(parameters)
+{
+  if (parameters != NULL)
+    {
+    parameters->setDefault("Infinity in meters", "3.0");
+    }
+  build_lookup_table(this->lookup_table);
 }
 
 Cloudy::~Cloudy()
 {
   delete this->pointCloud;
-}
-
-short Cloudy::MaximimDepth()
-{
-  return this->m_MaximimDepth;
-}
-void Cloudy::setMaximimDepth(short v)
-{
-  this->m_MaximimDepth = v;
 }
 
 bool Cloudy::isGood()
@@ -97,8 +122,16 @@ void Cloudy::GetCurrentPointCloud(vtkPolyData * output)
 
 
 static pcl::PointCloud<pcl::PointXYZRGBNormal> *  freenect_sync(
-  int freenect_index = 0, short maximimDepth = DEFAULT_MAXIMIM_DEPTH)
+  const std::vector<double> & lookup_table,
+  int freenect_index = 0, Parameters * parameters = NULL)
 {
+  short maximimDepth = DEFAULT_MAXIMIM_DEPTH;
+  if (parameters != NULL)
+    {
+    maximimDepth = meters_to_depth(parameters->getParameter("Infinity in meters").toDouble());
+    if (maximimDepth < 10)
+      maximimDepth = 10;
+    }
   _IplImage * rgbImage;
   _IplImage * depthImage;
   rgbImage = freenect_sync_get_rgb_cv(freenect_index);
@@ -108,7 +141,7 @@ static pcl::PointCloud<pcl::PointXYZRGBNormal> *  freenect_sync(
   if (depthImage == NULL)
     return NULL;
   return depth_image_to_point_cloud(
-    rgbImage, depthImage, maximimDepth);
+    rgbImage, depthImage, maximimDepth, lookup_table);
 }
 
 void Cloudy::UpdatePointCloud() {
@@ -118,7 +151,7 @@ void Cloudy::UpdatePointCloud() {
     return;
     }
   alert("FIXME: update");
-  pcl_PointCloud * pc = freenect_sync(0, this->MaximimDepth());
+  pcl_PointCloud * pc = freenect_sync(this->lookup_table, 0, this->parameters);
   if (pc == NULL)
     {
     this->m_isGood = false;
@@ -128,7 +161,7 @@ void Cloudy::UpdatePointCloud() {
 }
 
 void Cloudy::CreatePointCloud() {
-  pcl_PointCloud * pc = freenect_sync(0, this->MaximimDepth());
+  pcl_PointCloud * pc = freenect_sync(this->lookup_table, 0, this->parameters);
   if (pc == NULL)
     {
     this->m_isGood = false;
@@ -147,20 +180,57 @@ void Cloudy::ClearPointCloud() {
 
 /******************************************************************************/
 
-static inline void ijdepth_to_xyz_meters(int i, int j, short depth, double * xyz)
+static inline void ijdepth_to_xyz_meters(
+  int i, int j, short depth, double * xyz,
+  const std::vector<double> & lookup_table)
 {
-  static const double scaleFactor = 0.1; //100?
-  static const double tmpVal1 = -0.0030711016;
-  static const double tmpVal2 = 3.3309495161;
-  static const double fx_d = (1.0 / 594.21434211923247);
-  static const double fy_d = (1.0 / 591.04053696870778);
   static const double cx_d = 339.30780975300314;
   static const double cy_d = 242.73913761751615;
-  double depthVal = static_cast<double>(depth);
-  xyz[2] = scaleFactor / (tmpVal1 * depthVal + tmpVal2);
-  xyz[0] = ((j - cx_d) * xyz[2] * fx_d);
-  xyz[1] = ((i - cy_d) * xyz[2] * fy_d);
+  static const double invfx_d = 1.68289441892896e-3;
+  static const double invfy_d = 1.6919313269589567e-3;
+  xyz[2] = lookup_table[static_cast<size_t>(depth)];
+  xyz[0] = ((j - cx_d) * xyz[2] * invfx_d);
+  xyz[1] = ((i - cy_d) * xyz[2] * invfy_d);
   return;
+}
+
+static inline int intround(double d)
+{
+  return static_cast<int>(std::floor(d + 0.5));
+}
+static inline void project_xyz_to_colorimg(double * xyz, int * colori, int *colorj)
+{
+  // FIXME make this work right!!!!!!!!!!!!!!!!!
+  static const double fx_rgb = 5.2921508098293293e+02;
+  static const double fy_rgb = 5.2556393630057437e+02;
+  static const double cx_rgb = 3.2894272028759258e+02;
+  static const double cy_rgb = 2.6748068171871557e+02;
+
+  double invZ = 1.0 / 
+    ( 1.7470421412464927e-02 * xyz[0] +
+      1.2275341476520762e-02 * xyz[1] +
+      9.9977202419716948e-01 * xyz[2] +
+      -1.0916736334336222e-02f);
+  double x =
+    ((9.9984628826577793e-01 * xyz[0] +
+    1.2635359098409581e-03 * xyz[1] +
+    -1.7487233004436643e-02 * xyz[2] +
+     1.9985242312092553e-02) * fx_rgb * invZ) + cx_rgb;
+  double y =
+    ((-1.4779096108364480e-03 * xyz[0] +
+      9.9992385683542895e-01 * xyz[1] +
+      -1.2251380107679535e-02 * xyz[2] +
+      -7.4423738761617583e-04) * fy_rgb * invZ) + cy_rgb;
+  *colori = intround(y);
+  *colorj = intround(x);
+  if (*colori < 0)
+    *colori = 0;
+  else if (*colori > 639)
+    *colori = 639;
+  if (*colorj < 0)
+    *colorj = 0;
+  else if (*colorj > 479)
+    *colorj = 479;
 }
 
 /**
@@ -175,8 +245,11 @@ static inline void ijdepth_to_xyz_meters(int i, int j, short depth, double * xyz
 pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
   _IplImage const * rgbImage,
   _IplImage const * depthImage,
-  short infinity)
+  short infinity,
+  const std::vector<double> & lookup_table)
 {
+  if (infinity > DEFAULT_MAXIMIM_DEPTH)
+    infinity = DEFAULT_MAXIMIM_DEPTH;
   if (rgbImage == NULL || depthImage == NULL)
     return NULL;
   int rows = depthImage->height;
@@ -188,12 +261,14 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
   int number_of_points = 0;
 
   for (int i = 0; i < number_of_pixels; ++i)
-    if ((depthValues[i]) < infinity)  
+    if ((depthValues[i]) < infinity)
         ++number_of_points;
 
   pcl_PointCloud *pc =  new pcl_PointCloud;
 
   pc->reserve(number_of_points);
+
+  print(number_of_points);
 
   pcl::PointXYZRGBNormal point;
   point.a = 0xff; // opaque
@@ -209,16 +284,15 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
       if (depth < infinity)
         {
         double xyz[3];
-        ijdepth_to_xyz_meters(i, j, depth, xyz);
+        ijdepth_to_xyz_meters(i, j, depth, xyz, lookup_table);
         point.x = static_cast<float>(xyz[0]);
         point.y = static_cast<float>(xyz[1]);
         point.z = static_cast<float>(xyz[2]);
-        // point.r = colorVals[(3*i*columns) + (3*j) + 2];
-        // point.g = colorVals[(3*i*columns) + (3*j) + 1];
-        // point.b = colorVals[(3*i*columns) + (3*j) + 0];
-        point.r = colorVals[(((i * columns) + j) * 3) + 0];
-        point.g = colorVals[(((i * columns) + j) * 3) + 1];
-        point.b = colorVals[(((i * columns) + j) * 3) + 2];
+        int colori=i, colorj=j;
+        project_xyz_to_colorimg(xyz, &colori, &colorj);
+        point.r = colorVals[(((colori * columns) + colorj) * 3) + 0];
+        point.g = colorVals[(((colori * columns) + colorj) * 3) + 1];
+        point.b = colorVals[(((colori * columns) + colorj) * 3) + 2];
         pc->push_back(point);
         }
       }
@@ -252,6 +326,9 @@ int point_cloud_to_vtkPolyData(
   poly->SetPoints(pts);
 
   size_t cloud_size = cloud->size();
+
+  print(cloud_size);
+
   if (cloud_size > 0)
     {
     pts->SetNumberOfPoints(cloud_size);
@@ -283,8 +360,8 @@ int point_cloud_to_vtkPolyData(
       float normals[3];
       unsigned char rgb[3];
       xyz[0] = point.x;
-      xyz[0] = point.y;
-      xyz[0] = point.z;
+      xyz[1] = point.y;
+      xyz[2] = point.z;
       rgb[0] = point.r;
       rgb[1] = point.g;
       rgb[2] = point.b;

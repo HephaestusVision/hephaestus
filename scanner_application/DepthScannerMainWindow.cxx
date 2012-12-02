@@ -99,8 +99,6 @@ static void resetCamera(QVTKPolyViewWidget * qVTKPolyViewWidget)
 
 void DepthScannerMainWindow::create()
 {
-  this->cloudy->setMaximimDepth(
-    parameters.getParameter("Infinity in millimeters").toInt());
   this->cloudy->ClearPointCloud();
   this->cloudy->CreatePointCloud();
 	this->cloudy->GetCurrentPointCloud(this->pointCloud);
@@ -111,8 +109,6 @@ void DepthScannerMainWindow::create()
 
 void DepthScannerMainWindow::update()
 {
-  this->cloudy->setMaximimDepth(
-    parameters.getParameter("Infinity in millimeters").toInt());
   this->cloudy->UpdatePointCloud();
 	this->cloudy->GetCurrentPointCloud(this->pointCloud);
   this->qVTKPolyViewWidget.newSource(this->pointCloud);
@@ -156,7 +152,7 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   parameters("HephaestusVision", "HephaestusScanner"),
   pointCloud(vtkPolyData::New()),
   qVTKPolyViewWidget(this, pointCloud),
-  cloudy(new Cloudy()),
+  cloudy(new Cloudy(&parameters)),
   loginDialog(this)
 {
   QToolBar * tool = this->addToolBar(QString("Tools"));
@@ -227,15 +223,6 @@ DepthScannerMainWindow::DepthScannerMainWindow():
 
   this->adjustSize();
   this->show();
-
-  parameters.setDefault("Infinity in millimeters","2047");
-  this->cloudy->setMaximimDepth(
-    parameters.getParameter("Infinity in millimeters").toInt());
-
-  // char * infinity = std::getenv ( "HEPHAESTUS_INFINITY" ); //millimeters
-  // short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;
-  // if (v > 0)
-  //this->cloudy->setMaximimDepth(v);
 
   parameters.setDefault("Default Server", "");
   parameters.setDefault("Default Appname", "");

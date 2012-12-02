@@ -26,10 +26,13 @@ set( VTK_DIR            "" CACHE PATH "location of VTK libraries" )
 set( OpenCV_DIR         "" CACHE PATH "location of OpenCV libraries" )
 set( LIB_FREENECT_SRC   "" CACHE PATH "location of libfreenext source" )
 set( LIB_FREENECT_BUILD "" CACHE PATH "location of libfreenext libraries" )
+#set( EIGEN_INCLUDE_DIR  "/usr/include/eigen3" CACHE PATH "location Eigen header files" )
 
 set(CMAKE_BUILD_TYPE debug)
 set(PCL_HEADER_COMPILE_OPTIONS "-Wno-unknown-pragmas -Wno-deprecated-declarations")
 set(CMAKE_CXX_FLAGS "-g -Wall ${PCL_HEADER_COMPILE_OPTIONS}")
+
+#include_directories(${EIGEN_INCLUDE_DIR})
 
 find_package(PCL 1.3 REQUIRED COMPONENTS common io search)
 include_directories(${PCL_INCLUDE_DIRS})
