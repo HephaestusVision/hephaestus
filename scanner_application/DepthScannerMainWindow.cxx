@@ -33,7 +33,6 @@
 
 #include "DepthScannerMainWindow.h"
 #include "Cloudy.h"
-#include "PointCloud.h"
 #include "CameraWidget.h"
 #include "MidasUpload.h"
 
@@ -67,20 +66,6 @@ static inline void alert(QWidget * parent, const char * s)
   alert(parent, QString(s));
 }
 
-static void updatePC(DepthScannerMainWindow * dsmw)
-{
-  const PointCloud * pc = dsmw->cloudy->GetCurrentPointCloud();
-  if (pc == NULL)
-    {
-    alert(dsmw, "NULL CurrentPointCloud");
-    return;
-    }
-  convertPointCloudToVtkPoly(pc, dsmw->pointCloud);
-  //blobify(pc, dsmw->pointCloud);
-  //blobify2(pc, dsmw->pointCloud);
-  dsmw->qVTKPolyViewWidget.newSource(dsmw->pointCloud);
-}
-
 void DepthScannerMainWindow::upload()
 {
   QTemporaryFile tempfile ( "hephaestus_temp_XXXXXX.vtp" );
@@ -101,20 +86,26 @@ void DepthScannerMainWindow::settings()
   this->parameters.raise();
   this->parameters.activateWindow();
 }
-void DepthScannerMainWindow::create()
-{
-  this->cloudy->setMaximimDepth(
-    parameters.getParameter("Infinity in millimeters").toInt());
 
-  this->cloudy->ClearPointCloud();
-  this->cloudy->CreatePointCloud();
-  updatePC(this);
+static void resetCamera(QVTKPolyViewWidget * qVTKPolyViewWidget)
+{
   double FocalPoint[3] = {0.0, 0.0, 1.0};
   double position[3] = {0.0, 0.0, -0.0};
   double viewUp[3] = {0.0, -1.0, 0.0};
   double viewAngle = 45.0;
-  this->qVTKPolyViewWidget.SetCamera(FocalPoint, position, viewUp, viewAngle);
-  this->qVTKPolyViewWidget.ResetCamera();
+  qVTKPolyViewWidget->SetCamera(FocalPoint, position, viewUp, viewAngle);
+  qVTKPolyViewWidget->ResetCamera();
+}
+
+void DepthScannerMainWindow::create()
+{
+  this->cloudy->setMaximimDepth(
+    parameters.getParameter("Infinity in millimeters").toInt());
+  this->cloudy->ClearPointCloud();
+  this->cloudy->CreatePointCloud();
+	this->cloudy->GetCurrentPointCloud(this->pointCloud);
+  this->qVTKPolyViewWidget.newSource(this->pointCloud);
+	resetCamera(&(this->qVTKPolyViewWidget));
 }
 
 
@@ -122,9 +113,9 @@ void DepthScannerMainWindow::update()
 {
   this->cloudy->setMaximimDepth(
     parameters.getParameter("Infinity in millimeters").toInt());
-
   this->cloudy->UpdatePointCloud();
-  updatePC(this);
+	this->cloudy->GetCurrentPointCloud(this->pointCloud);
+  this->qVTKPolyViewWidget.newSource(this->pointCloud);
 }
 
 
@@ -245,6 +236,19 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   // short v = (infinity != NULL) ? static_cast<short>(atoi(infinity)) : 0;
   // if (v > 0)
   //this->cloudy->setMaximimDepth(v);
+
+  parameters.setDefault("Default Server", "");
+  parameters.setDefault("Default Appname", "");
+  parameters.setDefault("Default Email", "");
+  parameters.setDefault("Default APIKey", "");
+  QString default_server  = parameters.getParameter("Default Server") ;
+  QString default_appname = parameters.getParameter("Default Appname");
+  QString default_email   = parameters.getParameter("Default Email") ; 
+  QString default_apikey  = parameters.getParameter("Default APIKey") ;
+  this->loginDialog.setServer( default_server );
+  this->loginDialog.setAppname(default_appname);
+  this->loginDialog.setEmail(  default_email  );
+  this->loginDialog.setApikey( default_apikey );
 }
 
 DepthScannerMainWindow::~DepthScannerMainWindow()

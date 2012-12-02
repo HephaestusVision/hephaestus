@@ -1,12 +1,12 @@
 /**
-	@file Cloudy.h
+  @file Cloudy.h
 
-	@authors
+  @authors
   Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
     http://hephaestusvision.github.com/hephaestus/
-		
+    
   @copyright
-	Copyright 2012 University of North Carolina at Chapel Hill.
+  Copyright 2012 University of North Carolina at Chapel Hill.
 
   @copyright
   Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -26,60 +26,113 @@
 #ifndef CLOUDY_H
 #define CLOUDY_H
 
-class PointCloud;
 struct _IplImage;
+class vtkPolyData;
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
 
 /**
   Cloudy is the glue between the Computer Vision code and the GUI.
 */
 class Cloudy {
 public:
-	/** Constructor */
+  /** Constructor */
   Cloudy(/* FIXME: constructor arguments? */);
   virtual ~Cloudy();
-	/**
-		 @return a pointer to the current point cloud.  Can return NULL if
-		 there are no point clouds right now.
-	*/
-  PointCloud const * GetCurrentPointCloud() const;
-	/**
-		 Modify the current point cloud by adding points to it.
-	*/
+
+  // /**
+  //    @return a pointer to the current point cloud.  Can return NULL if
+  //    there are no point clouds right now.
+  // */
+  // PointCloud const * GetCurrentPointCloud() const;
+
+  /**
+     Save the current PointCloud object into a vtkPolyData.
+  */
+  void GetCurrentPointCloud(vtkPolyData * output);
+
+  /**
+     Modify the current point cloud by adding points to it.
+  */
   void UpdatePointCloud();
-	/**
-		 Create a new point cloud.  Any old PC will be lost.
-	*/
+  /**
+     Create a new point cloud.  Any old PC will be lost.
+  */
   void CreatePointCloud();
 
-	/**
-		 Reset to initial condition.
-	*/
+  /**
+     Reset to initial condition.
+  */
   void ClearPointCloud();
 
-	/**
-		 @return Does the freenect_sync_get_rgb_cv() function return
-		 non-NULL value?  I.e. is the Kinect connected?
-	*/
+  /**
+     @return Does the freenect_sync_get_rgb_cv() function return
+     non-NULL value?  I.e. is the Kinect connected?
+  */
   bool isGood();
-	/**
-		 @return current maximum depth value in units of milimeters.
-	 */
-	short MaximimDepth();
-	/**
-		 @param depth_in_millimeters Set the maximum depth value in units
-		 of milimeters.
-	 */
-	void setMaximimDepth(short depth_in_millimeters);
+  /**
+     @return current maximum depth value in units of milimeters.
+   */
+  short MaximimDepth();
+  /**
+     @param depth_in_millimeters Set the maximum depth value in units
+     of milimeters.
+   */
+  void setMaximimDepth(short depth_in_millimeters);
 private:
   Cloudy(const Cloudy & c); // noncopyable resource
   Cloudy& operator=(const Cloudy & c); // noncopyable resource
 
   /* private instance variables */
   bool m_isGood;
-	short m_MaximimDepth;
-  _IplImage * rgbImage;
-  _IplImage * depthImage;
-  PointCloud * pcloud;
+  short m_MaximimDepth;
+  pcl::PointCloud<pcl::PointXYZRGBNormal> * pointCloud;
 };
+
+/**
+   Given two IplImages representing RGB and depth information, create
+   pcl::PointCloud<pcl::PointXYZRGBNormal> object.
+
+   The returned pointer will point to a object created on the stack.
+   it is the caller's repsonsibility to delete the object.
+
+   Returns NULL on an error.
+ */
+pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
+  _IplImage const * rgbImage,
+  _IplImage const * depthImage,
+  short infinity);
+
+/**
+   Function to convert to vtkPolyData. Overwrites output object.
+
+   Example useage:
+   \code
+   void f(pcl::PointCloud<pcl::PointXYZRGBNormal> * cloud)
+   {
+     vtkSmartPointer< vtkPolyData > myVtkPolyData =
+       vtkSmartPointer< vtkPolyData >::New();
+     pointCloudToVtkPolyData(cloud,myVtkPolyData);
+     do_something_with(myVtkPolyData);
+   }
+   \endcode
+ */
+int point_cloud_to_vtkPolyData(
+  pcl::PointCloud<pcl::PointXYZRGBNormal> * cloud,
+  vtkPolyData * output);
+
+/**
+   Function to convert from vtkPolyData to a
+   pcl::PointCloud<pcl::PointXYZRGBNormal>.  Will get color
+   information from the rgb_colors array if present.
+
+   The returned pointer will point to a object created on the stack.
+   it is the caller's repsonsibility to delete the object.
+
+   Returns NULL on an error.
+  */
+pcl::PointCloud<pcl::PointXYZRGBNormal> * vtkPolyData_to_point_cloud(
+  vtkPolyData * poly);
+
 
 #endif /* CLOUDY_H */

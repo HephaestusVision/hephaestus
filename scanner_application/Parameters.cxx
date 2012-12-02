@@ -114,8 +114,6 @@ void Parameters::setDefault(const QString & key, const QString & value)
     this->gridLayout.addWidget(label,  this->number_of_defaults, 0, 1, 1);
     this->gridLayout.addWidget(widget, this->number_of_defaults, 1, 1, 1);
     ++(this->number_of_defaults);
-    std::cerr << "X\n";
-
     widget->setText(this->getParameter(key));
     }
   else
