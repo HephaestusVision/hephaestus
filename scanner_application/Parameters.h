@@ -27,20 +27,11 @@
 #define PARAMETERS_H
 
 #include <QDialog>
-#include <QLineEdit>
-#include <QString>
-#include <QSettings>
-
 #include <QSettings>
 #include <QMap>
 #include <QString>
-//#include <QVariant>
-//#include <QWidget>
-#include <QLineEdit>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QDialogButtonBox>
-
+class QLineEdit;
+class QGridLayout;
 
 /**
    Dialog to change parameters.  Subclass of QDialog
@@ -51,9 +42,7 @@ private:
   QSettings settings;
   QMap<QString, QString> defaults;
   QMap<QString, QLineEdit*> inputWidgets;
-  QVBoxLayout verticalLayout;
-  QGridLayout gridLayout;
-  QDialogButtonBox buttonBox;
+  QGridLayout * gridLayout;
   int number_of_defaults;
 public:
 /**
@@ -107,6 +96,8 @@ public slots:
   void resetToDefaults();
   void process_reject();
   void process_accept();
+signals:
+  void changed();
 };
 
 #endif /* PARAMETERS_H */

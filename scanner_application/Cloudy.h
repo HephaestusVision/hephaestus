@@ -26,17 +26,20 @@
 #ifndef CLOUDY_H
 #define CLOUDY_H
 
-struct _IplImage;
-class vtkPolyData;
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
-class Parameters;
 #include <vector>
+#include <QObject>
+struct _IplImage;
+class vtkPolyData;
+class Parameters;
+struct cloudy_configuration;
 
 /**
   Cloudy is the glue between the Computer Vision code and the GUI.
 */
-class Cloudy {
+class Cloudy : public QObject {
+  Q_OBJECT; // QT Meta-object compiler macro.
 public:
   /** Constructor */
   Cloudy(Parameters * parameters = NULL);
@@ -73,6 +76,9 @@ public:
   */
   bool isGood();
 
+public slots:
+  void parametersChanged();
+
 private:
   Cloudy(const Cloudy & c); // noncopyable resource
   Cloudy& operator=(const Cloudy & c); // noncopyable resource
@@ -80,24 +86,9 @@ private:
   /* private instance variables */
   bool m_isGood;
   pcl::PointCloud<pcl::PointXYZRGBNormal> * pointCloud;
-	Parameters * parameters;
-	std::vector<double> lookup_table;
+  Parameters * parameters;
+  cloudy_configuration * config;
 };
-
-/**
-   Given two IplImages representing RGB and depth information, create
-   pcl::PointCloud<pcl::PointXYZRGBNormal> object.
-
-   The returned pointer will point to a object created on the stack.
-   it is the caller's repsonsibility to delete the object.
-
-   Returns NULL on an error.
- */
-pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
-  _IplImage const * rgbImage,
-  _IplImage const * depthImage,
-  short infinity,
-  const std::vector<double> & lookup_table);
 
 /**
    Function to convert to vtkPolyData. Overwrites output object.

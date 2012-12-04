@@ -83,6 +83,7 @@ set(MOC
   PickFolder.h
   LoginDialog.h
   Parameters.h
+  Cloudy.h
 )
 qt4_wrap_cpp(MOC_GENERATED ${MOC})
 

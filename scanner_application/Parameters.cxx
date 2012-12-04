@@ -29,9 +29,13 @@
 #include <QCheckBox>
 #include <QSpinBox>
 #include <QLabel>
+#include <QScrollArea>
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QDialogButtonBox>
 
 #include "Parameters.h"
-
 
 Parameters::Parameters(
   const QString & organization, 
@@ -39,11 +43,6 @@ Parameters::Parameters(
   QWidget * parent) :
     QDialog(parent),
     settings(organization, application),
-    defaults(),
-    inputWidgets(),
-    verticalLayout(this),
-    gridLayout(),
-    buttonBox(),
     number_of_defaults(0)
 {
   QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
@@ -52,17 +51,25 @@ Parameters::Parameters(
   sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
   this->setSizePolicy(sizePolicy);
 
-  this->verticalLayout.addLayout(&(this->gridLayout));
-  this->buttonBox.setOrientation(Qt::Horizontal);
-  this->buttonBox.setStandardButtons(
-    QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+	this->resize(400, 300);
+	QVBoxLayout * verticalLayout = new QVBoxLayout(this);
+	QScrollArea * scrollArea = new QScrollArea(this);
+	scrollArea->setWidgetResizable(true);
+	QWidget * scrollAreaWidgetContents = new QWidget();
+	scrollAreaWidgetContents->setGeometry(QRect(0, 0, 364, 821));
 
-  this->verticalLayout.addWidget(&(this->buttonBox));
+	this->gridLayout = new QGridLayout(scrollAreaWidgetContents);
 
-  QObject::connect(
-    &(this->buttonBox), SIGNAL(accepted()), this, SLOT(process_accept()));
-  QObject::connect(
-    &(this->buttonBox), SIGNAL(rejected()), this, SLOT(process_reject()));
+	scrollArea->setWidget(scrollAreaWidgetContents);
+	verticalLayout->addWidget(scrollArea);
+
+	QDialogButtonBox * buttonBox = new QDialogButtonBox(this);
+	buttonBox->setOrientation(Qt::Horizontal);
+	buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+	verticalLayout->addWidget(buttonBox);
+  QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(process_accept()));
+  QObject::connect(buttonBox, SIGNAL(rejected()), this, SLOT(process_reject()));
 }
 
 
@@ -111,8 +118,8 @@ void Parameters::setDefault(const QString & key, const QString & value)
     this->inputWidgets[key] = widget;
         
     label->setAlignment( Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
-    this->gridLayout.addWidget(label,  this->number_of_defaults, 0, 1, 1);
-    this->gridLayout.addWidget(widget, this->number_of_defaults, 1, 1, 1);
+    this->gridLayout->addWidget(label,  this->number_of_defaults, 0, 1, 1);
+    this->gridLayout->addWidget(widget, this->number_of_defaults, 1, 1, 1);
     ++(this->number_of_defaults);
     widget->setText(this->getParameter(key));
     }
@@ -141,7 +148,11 @@ void Parameters::process_accept()
   while (inputIterator.hasNext())
     {
     inputIterator.next();
+    // if (QLineEdit.value != default value)
     this->settings.setValue(inputIterator.key(), QVariant(inputIterator.value()->text()));
+    // else
+    //    unset this->settings.
     }  
+  emit (changed());
   this->accept();
 }
