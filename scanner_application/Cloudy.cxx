@@ -53,7 +53,6 @@ using namespace Eigen;
 
 #define print(a) std::cerr << (#a) << ": " << (a) << '\n';
 
-
 using namespace std;
 using namespace cv;
 
@@ -131,11 +130,10 @@ static inline int intround(double d)
 
 static inline void project_xyz_to_colorimg(double * xyz, int * colori, int *colorj, cloudy_configuration * config)
 {
-  // FIXME make this work right!!!!!!!!!!!!!!!!!
-  double fx_rgb = config->fx_rgb;
-  double fy_rgb = config->fy_rgb;
-  double cx_rgb = config->cx_rgb;
-  double cy_rgb = config->cy_rgb;
+  double & fx_rgb = config->fx_rgb;
+  double & fy_rgb = config->fy_rgb;
+  double & cx_rgb = config->cx_rgb;
+  double & cy_rgb = config->cy_rgb;
 
   double & Rkx = config->Rkx;
   double & Rky = config->Rky;
@@ -181,10 +179,9 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
   _IplImage const * depthImage,
   cloudy_configuration * config)
 {
-  // if (infinity > DEFAULT_MAXIMIM_DEPTH)
-  //   infinity = DEFAULT_MAXIMIM_DEPTH;
   if (rgbImage == NULL || depthImage == NULL)
     return NULL;
+	assert(config != NULL);
   short infinity = config->maximimDepth;
   int rows = depthImage->height;
   int columns = depthImage->width;
@@ -248,14 +245,6 @@ static pcl::PointCloud<pcl::PointXYZRGBNormal> * freenect_sync(
   return depth_image_to_point_cloud(rgbImage, depthImage, config);
 }
 
-
-  /*
-    parameters->setDefault("fx_rgb", "5.471508098293293e+02");   //   (config->fx_rgb)
-    parameters->setDefault("fy_rgb", "5.3556393630057437e+02");  //   (config->fy_rgb)
-    parameters->setDefault("cx_rgb", "3.306272028759258e+02");   //   (config->cx_rgb)
-    parameters->setDefault("cy_rgb", "2.6748068171871557e+02");  //   (config->cy_rgb)
-   */
-
 /******************************************************************************/
 Cloudy::Cloudy(Parameters * parameters):
   m_isGood(false),
@@ -263,38 +252,36 @@ Cloudy::Cloudy(Parameters * parameters):
   parameters(parameters),
   config(new cloudy_configuration)
 {
-  if (parameters != NULL)
-    {
-    parameters->setDefault("Infinity in meters", "3.0");
-    parameters->setDefault("fx_rgb", "5.471508098293293e+02");   //   config->fx_rgb
-    parameters->setDefault("fy_rgb", "5.3556393630057437e+02");  //   config->fy_rgb
-    parameters->setDefault("cx_rgb", "3.306272028759258e+02");   //   config->cx_rgb
-    parameters->setDefault("cy_rgb", "2.6748068171871557e+02");  //   config->cy_rgb
+  assert (parameters != NULL);
+  parameters->setDefault("Infinity in meters", "3.0");
+  parameters->setDefault("fx_rgb", "5.471508098293293e+02");  // config->fx_rgb
+  parameters->setDefault("fy_rgb", "5.3556393630057437e+02"); // config->fy_rgb
+  parameters->setDefault("cx_rgb", "3.306272028759258e+02");  // config->cx_rgb
+  parameters->setDefault("cy_rgb", "2.6748068171871557e+02"); // config->cy_rgb
 
-    parameters->setDefault("depth_constant_k1", "1.1863");       //   config->k1
-    parameters->setDefault("depth_constant_k2", "2842.5");       //   config->k2
-    parameters->setDefault("depth_constant_k3", "0.1236");       //   config->k3
+  parameters->setDefault("depth_constant_k1", "1.1863");      // config->k1
+  parameters->setDefault("depth_constant_k2", "2842.5");      // config->k2
+  parameters->setDefault("depth_constant_k3", "0.1236");      // config->k3
 
-    parameters->setDefault("Rkx", "1.7470421412464927e-02");
-    parameters->setDefault("Rky", "1.2275341476520762e-02");
-    parameters->setDefault("Rkz", "9.9977202419716948e-01");
-    parameters->setDefault("Tk",  "-1.0916736334336222e-02f");
+  parameters->setDefault("Rkx", "1.7470421412464927e-02");
+  parameters->setDefault("Rky", "1.2275341476520762e-02");
+  parameters->setDefault("Rkz", "9.9977202419716948e-01");
+  parameters->setDefault("Tk",  "-1.0916736334336222e-02f");
 
-    parameters->setDefault("Rix", "9.9984628826577793e-01");
-    parameters->setDefault("Riy", "1.2635359098409581e-03");
-    parameters->setDefault("Riz", "-1.7487233004436643e-02");
-    parameters->setDefault("Ti",  "1.9985242312092553e-02");
+  parameters->setDefault("Rix", "9.9984628826577793e-01");
+  parameters->setDefault("Riy", "1.2635359098409581e-03");
+  parameters->setDefault("Riz", "-1.7487233004436643e-02");
+  parameters->setDefault("Ti",  "1.9985242312092553e-02");
 
-    parameters->setDefault("Rjx", "-1.4779096108364480e-03");
-    parameters->setDefault("Rjy", "9.9992385683542895e-01");
-    parameters->setDefault("Rjz", "-1.2251380107679535e-02");
-    parameters->setDefault("Tj", "-7.4423738761617583e-04");
+  parameters->setDefault("Rjx", "-1.4779096108364480e-03");
+  parameters->setDefault("Rjy", "9.9992385683542895e-01");
+  parameters->setDefault("Rjz", "-1.2251380107679535e-02");
+  parameters->setDefault("Tj", "-7.4423738761617583e-04");
 
-    parameters->setDefault("cx_d", "339.30780975300314");
-    parameters->setDefault("cy_d", "242.73913761751615");
-    parameters->setDefault("fx_d", "594.21434211923247");
-    parameters->setDefault("fy_d", "591.04053696870778");
-    }
+  parameters->setDefault("cx_d", "339.30780975300314");
+  parameters->setDefault("cy_d", "242.73913761751615");
+  parameters->setDefault("fx_d", "594.21434211923247");
+  parameters->setDefault("fy_d", "591.04053696870778");
   QObject::connect(parameters, SIGNAL(changed()), this, SLOT(parametersChanged()));
   this->parametersChanged(); // get parameters from disc.
 }
@@ -302,8 +289,6 @@ Cloudy::Cloudy(Parameters * parameters):
 void Cloudy::parametersChanged()
 {
   cloudy_configuration * config = this->config;
-  config->maximimDepth = meters_to_depth(
-    parameters->getParameter("Infinity in meters").toDouble(), config);
 
   config->fx_rgb = this->parameters->getParameter("fx_rgb").toDouble();
   config->fy_rgb = this->parameters->getParameter("fy_rgb").toDouble();
@@ -334,7 +319,12 @@ void Cloudy::parametersChanged()
   config->invfx_d = 1.0 / this->parameters->getParameter("fx_d").toDouble();
   config->invfy_d = 1.0 / this->parameters->getParameter("fy_d").toDouble();
 
+	// must do this AFTER config->[PARAMETRS] are set.
   build_lookup_table(config);
+
+	// must do this AFTER  build_lookup_table().
+  config->maximimDepth = meters_to_depth(
+    parameters->getParameter("Infinity in meters").toDouble(), config);
 }
 
 Cloudy::~Cloudy()
