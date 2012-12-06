@@ -72,22 +72,33 @@ public:
     const QString & organization, 
     const QString & application,
     QWidget * parent=NULL);
-/**
-   Changes the value of a parameter.  Should change on disc and in the
-   dialog as well.  If there is no default, value becomes the new
-   default.
- */
+  /**
+     Changes the value of a parameter.  Should change on disc and in the
+     dialog as well.  If there is no default, value becomes the new
+     default.
+  */
   void setParameter(const QString & key, const QString & value);
-/**
-   Returns the value. If not set, the default is set.
- */
+  /**
+     Returns the value. If not set, the default is set.
+  */
   QString getParameter(const QString & key) const;
-/**
-   Adds a new parameter with a default value or changes the
-   default. If the parameter is not new, the setting isn't changed,
-   just the default.
- */
+  /**
+     Returns the value converted to a double. If not set, the default is set.
+  */
+  double getValue(const QString & key) const
+  {
+    return this->getParameter(key).toDouble();
+  }
+  /**
+     Adds a new parameter with a default value or changes the
+     default. If the parameter is not new, the setting isn't changed,
+     just the default.
+  */
   void setDefault(const QString & key, const QString & value);
+  void setDefault(const QString & key, double value)
+  {
+    this->setDefault(key, QString::number(value, 'g', 15));
+  }
 public slots:
 /**
    Clears all settings, even those sotred on your hard drive.

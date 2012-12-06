@@ -49,10 +49,11 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
+
+//// debugging code
+// #define print(a) std::cerr << (#a) << ": " << (a) << '\n';
+
 using namespace Eigen;
-
-#define print(a) std::cerr << (#a) << ": " << (a) << '\n';
-
 using namespace std;
 using namespace cv;
 
@@ -75,6 +76,7 @@ struct cloudy_configuration {
 
 /******************************************************************************/
 
+// for errors.
 static void alert(const char * s)
 {
   if (QCoreApplication::instance() != NULL)
@@ -83,6 +85,8 @@ static void alert(const char * s)
     std::cerr << s << '\n';
 }
 
+// since there are MANY more function calls than possible values, we
+// speed things up by precomputing each of the 2048 possible values.
 static void build_lookup_table(cloudy_configuration * config)
 {
   std::vector<double> & table = config->lookup_table;
@@ -96,6 +100,8 @@ static void build_lookup_table(cloudy_configuration * config)
     table[i] = k3 * std::tan((k2 * static_cast<double>(i)) + k1);
 }
 
+// the user sets a threshold in meters.  we want to convert to
+// internal units to make comparisons faster.
 static short meters_to_depth(double meters, cloudy_configuration * config)
 {
   double k1 = - (config->k1);
@@ -109,6 +115,7 @@ static short meters_to_depth(double meters, cloudy_configuration * config)
   return s;
 }
 
+// convert to pixel index units to world units.
 static inline void ijdepth_to_xyz_meters(
   int i, int j, short depth, double * xyz,
   cloudy_configuration * config)
@@ -123,11 +130,14 @@ static inline void ijdepth_to_xyz_meters(
   return;
 }
 
+// round to nearest int.
 static inline int intround(double d)
 {
   return static_cast<int>(std::floor(d + 0.5));
 }
 
+// Convert from xyz world coordinates relative to the depth camera to
+// ij pixel coordinates in the color camera image.
 static inline void project_xyz_to_colorimg(double * xyz, int * colori, int *colorj, cloudy_configuration * config)
 {
   double & fx_rgb = config->fx_rgb;
@@ -181,7 +191,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
 {
   if (rgbImage == NULL || depthImage == NULL)
     return NULL;
-	assert(config != NULL);
+  assert(config != NULL);
   short infinity = config->maximimDepth;
   int rows = depthImage->height;
   int columns = depthImage->width;
@@ -199,7 +209,7 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
 
   pc->reserve(number_of_points);
 
-  print(number_of_points);
+  //print(number_of_points);
 
   pcl::PointXYZRGBNormal point;
   point.a = 0xff; // opaque
@@ -231,11 +241,12 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
   return pc;
 }
 
+// talk to the Kinect, get images from the depth camera, converty them
+// to a point cloud and return that.
 static pcl::PointCloud<pcl::PointXYZRGBNormal> * freenect_sync(
   cloudy_configuration * config, int freenect_index = 0)
 {
-  _IplImage * rgbImage;
-  _IplImage * depthImage;
+  _IplImage * rgbImage, * depthImage;
   rgbImage = freenect_sync_get_rgb_cv(freenect_index);
   if (rgbImage == NULL)
     return NULL;
@@ -254,34 +265,42 @@ Cloudy::Cloudy(Parameters * parameters):
 {
   assert (parameters != NULL);
   parameters->setDefault("Infinity in meters", "3.0");
-  parameters->setDefault("fx_rgb", "5.471508098293293e+02");  // config->fx_rgb
-  parameters->setDefault("fy_rgb", "5.3556393630057437e+02"); // config->fy_rgb
-  parameters->setDefault("cx_rgb", "3.306272028759258e+02");  // config->cx_rgb
-  parameters->setDefault("cy_rgb", "2.6748068171871557e+02"); // config->cy_rgb
 
-  parameters->setDefault("depth_constant_k1", "1.1863");      // config->k1
-  parameters->setDefault("depth_constant_k2", "2842.5");      // config->k2
-  parameters->setDefault("depth_constant_k3", "0.1236");      // config->k3
+  // RGB CAMERA
+  //   Focal Length
+  parameters->setDefault("RGB Focal Length X", 530.32033); // config->fx_rgb
+  parameters->setDefault("RGB Focal Length Y", 531.84388); // config->fy_rgb
+  //   Principal point
+  parameters->setDefault("RGB Principal Point X", 312.97306);  // config->cx_rgb
+  parameters->setDefault("RGB Principal Point Y", 265.00603); // config->cy_rgb
 
-  parameters->setDefault("Rkx", "1.7470421412464927e-02");
-  parameters->setDefault("Rky", "1.2275341476520762e-02");
-  parameters->setDefault("Rkz", "9.9977202419716948e-01");
-  parameters->setDefault("Tk",  "-1.0916736334336222e-02f");
+  // DEPTH CAMERA
+  //   Focal Length
+  parameters->setDefault("Depth Focal Length X", 585.97379); // config->fx_d
+  parameters->setDefault("Depth Focal Length Y", 584.00903); // config->fy_d
+  //   Principal point
+  parameters->setDefault("Depth Principal Point X", 319.50000); // config->cx_d
+  parameters->setDefault("Depth Principal Point Y", 239.50000); // config->cy_d
 
-  parameters->setDefault("Rix", "9.9984628826577793e-01");
-  parameters->setDefault("Riy", "1.2635359098409581e-03");
-  parameters->setDefault("Riz", "-1.7487233004436643e-02");
-  parameters->setDefault("Ti",  "1.9985242312092553e-02");
+  parameters->setDefault("depth_constant_k1", 1.1863); // config->k1
+  parameters->setDefault("depth_constant_k2", 2842.5); // config->k2
+  parameters->setDefault("depth_constant_k3", 0.1236); // config->k3
 
-  parameters->setDefault("Rjx", "-1.4779096108364480e-03");
-  parameters->setDefault("Rjy", "9.9992385683542895e-01");
-  parameters->setDefault("Rjz", "-1.2251380107679535e-02");
-  parameters->setDefault("Tj", "-7.4423738761617583e-04");
+  parameters->setDefault("Rkx", 0.017470421412464927);
+  parameters->setDefault("Rky", 0.012275341476520762);
+  parameters->setDefault("Rkz", 0.99977202419716948);
+  parameters->setDefault("Tk",  -0.010916736334336222);
 
-  parameters->setDefault("cx_d", "339.30780975300314");
-  parameters->setDefault("cy_d", "242.73913761751615");
-  parameters->setDefault("fx_d", "594.21434211923247");
-  parameters->setDefault("fy_d", "591.04053696870778");
+  parameters->setDefault("Rix", 0.99984628826577793);
+  parameters->setDefault("Riy", 0.0012635359098409581);
+  parameters->setDefault("Riz", -0.017487233004436643);
+  parameters->setDefault("Ti",  0.019985242312092553);
+
+  parameters->setDefault("Rjx", -0.0014779096108364480);
+  parameters->setDefault("Rjy", 0.99992385683542895);
+  parameters->setDefault("Rjz", -0.012251380107679535);
+  parameters->setDefault("Tj", -0.00074423738761617583);
+
   QObject::connect(parameters, SIGNAL(changed()), this, SLOT(parametersChanged()));
   this->parametersChanged(); // get parameters from disc.
 }
@@ -290,41 +309,43 @@ void Cloudy::parametersChanged()
 {
   cloudy_configuration * config = this->config;
 
-  config->fx_rgb = this->parameters->getParameter("fx_rgb").toDouble();
-  config->fy_rgb = this->parameters->getParameter("fy_rgb").toDouble();
-  config->cx_rgb = this->parameters->getParameter("cx_rgb").toDouble();
-  config->cy_rgb = this->parameters->getParameter("cy_rgb").toDouble();
+  config->fx_rgb = this->parameters->getValue("RGB Focal Length X");
+  config->fy_rgb = this->parameters->getValue("RGB Focal Length Y");
+  config->cx_rgb = this->parameters->getValue("RGB Principal Point X");
+  config->cy_rgb = this->parameters->getValue("RGB Principal Point Y");
 
-  config->k1 = this->parameters->getParameter("depth_constant_k1").toDouble();
-  config->k2 = this->parameters->getParameter("depth_constant_k2").toDouble();
-  config->k3 = this->parameters->getParameter("depth_constant_k3").toDouble();
+  config->k1 = this->parameters->getValue("depth_constant_k1");
+  config->k2 = this->parameters->getValue("depth_constant_k2");
+  config->k3 = this->parameters->getValue("depth_constant_k3");
 
-  config->Rkx = this->parameters->getParameter("Rkx").toDouble();
-  config->Rky = this->parameters->getParameter("Rky").toDouble();
-  config->Rkz = this->parameters->getParameter("Rkz").toDouble();
-  config->Tk  = this->parameters->getParameter("Tk ").toDouble();
+  config->Rkx = this->parameters->getValue("Rkx");
+  config->Rky = this->parameters->getValue("Rky");
+  config->Rkz = this->parameters->getValue("Rkz");
+  config->Tk  = this->parameters->getValue("Tk ");
 
-  config->Rix = this->parameters->getParameter("Rix").toDouble();
-  config->Riy = this->parameters->getParameter("Riy").toDouble();
-  config->Riz = this->parameters->getParameter("Riz").toDouble();
-  config->Ti  = this->parameters->getParameter("Ti").toDouble();
+  config->Rix = this->parameters->getValue("Rix");
+  config->Riy = this->parameters->getValue("Riy");
+  config->Riz = this->parameters->getValue("Riz");
+  config->Ti  = this->parameters->getValue("Ti");
 
-  config->Rjx = this->parameters->getParameter("Rjx").toDouble();
-  config->Rjy = this->parameters->getParameter("Rjy").toDouble();
-  config->Rjz = this->parameters->getParameter("Rjz").toDouble();
-  config->Tj  = this->parameters->getParameter("Tj").toDouble();
+  config->Rjx = this->parameters->getValue("Rjx");
+  config->Rjy = this->parameters->getValue("Rjy");
+  config->Rjz = this->parameters->getValue("Rjz");
+  config->Tj  = this->parameters->getValue("Tj");
 
-  config->cx_d = this->parameters->getParameter("cx_d").toDouble();
-  config->cy_d = this->parameters->getParameter("cy_d").toDouble();
-  config->invfx_d = 1.0 / this->parameters->getParameter("fx_d").toDouble();
-  config->invfy_d = 1.0 / this->parameters->getParameter("fy_d").toDouble();
+  config->cx_d = this->parameters->getValue("Depth Principal Point X");
+  config->cy_d = this->parameters->getValue("Depth Principal Point Y");
+  config->invfx_d =
+    1.0 / this->parameters->getValue("Depth Focal Length X");
+  config->invfy_d =
+    1.0 / this->parameters->getValue("Depth Focal Length Y");
 
-	// must do this AFTER config->[PARAMETRS] are set.
+  // must do this AFTER config->[PARAMETRS] are set.
   build_lookup_table(config);
 
-	// must do this AFTER  build_lookup_table().
+  // must do this AFTER  build_lookup_table().
   config->maximimDepth = meters_to_depth(
-    parameters->getParameter("Infinity in meters").toDouble(), config);
+    parameters->getValue("Infinity in meters"), config);
 }
 
 Cloudy::~Cloudy()
@@ -342,8 +363,6 @@ void Cloudy::GetCurrentPointCloud(vtkPolyData * output)
 {
   point_cloud_to_vtkPolyData(this->pointCloud, output);
 }
-
-
 
 void Cloudy::UpdatePointCloud()
 {
@@ -409,7 +428,7 @@ int point_cloud_to_vtkPolyData(
 
   size_t cloud_size = cloud->size();
 
-  print(cloud_size);
+  //print(cloud_size);
 
   if (cloud_size > 0)
     {
