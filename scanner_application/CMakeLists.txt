@@ -103,8 +103,6 @@ set(SRC
   LoginDialog.cxx
   MidasUpload.cxx
   Parameters.cxx
-  libfreenect_cv.c
-  libfreenect_cv.h
 )
 endif( ${MSVC} )
 
