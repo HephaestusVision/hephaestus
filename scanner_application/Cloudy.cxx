@@ -72,6 +72,7 @@ struct cloudy_configuration {
   double Rix, Riy, Riz, Ti;
   double Rjx, Rjy, Rjz, Tj;
   double cx_d, cy_d, invfx_d, invfy_d;
+	double videoLength;
 };
 
 /******************************************************************************/
@@ -266,6 +267,8 @@ Cloudy::Cloudy(Parameters * parameters):
   assert (parameters != NULL);
   parameters->setDefault("Infinity in meters", "3.0");
 
+	parameters->setDefault("Length of Creation Video in seconds", 15);
+
   // RGB CAMERA
   //   Focal Length
   parameters->setDefault("RGB Focal Length X", 530.32033); // config->fx_rgb
@@ -308,6 +311,8 @@ Cloudy::Cloudy(Parameters * parameters):
 void Cloudy::parametersChanged()
 {
   cloudy_configuration * config = this->config;
+
+	config->videoLength = this->parameters->getValue("Length of Creation Video in seconds");
 
   config->fx_rgb = this->parameters->getValue("RGB Focal Length X");
   config->fy_rgb = this->parameters->getValue("RGB Focal Length Y");
