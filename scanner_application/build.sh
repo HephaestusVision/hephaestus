@@ -11,7 +11,7 @@ renice 1 $$
 cmake "$SRC" \
     -DVTK_DIR="${HOME}/build/VTK-5-10" \
     -DOpenCV_DIR:PATH="${HOME}/build/OpenCV" \
-    -DLIB_FREENECT_SRC:PATH="${HOME}/src/libfreenect" \
-    -DLIB_FREENECT_BUILD:PATH="${HOME}/build/libfreenect" \
+    -DLIBFREENECT_ROOT:PATH="${HOME}/src/libfreenect" \
+    -DLIBFREENECT_BUILD:PATH="${HOME}/build/libfreenect" \
     && make -j4 && echo "SUCCESS!";
 
