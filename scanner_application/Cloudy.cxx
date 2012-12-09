@@ -364,23 +364,31 @@ void Cloudy::GetCurrentPointCloud(vtkPolyData * output)
   point_cloud_to_vtkPolyData(this->pointCloud, output);
 }
 
+  /**
+     Modify the current point cloud by adding another frame.
+  */
 void Cloudy::UpdatePointCloud()
 {
-  if (this->pointCloud == NULL)
-    {
-    this->CreatePointCloud();
-    return;
-    }
-  alert("FIXME: update");
-  pcl_PointCloud * pc = freenect_sync(this->config, 0);
-  if (pc == NULL)
-    {
-    this->m_isGood = false;
-    return;
-    }
+  // if (this->pointCloud == NULL)
+  //   {
+  //   this->CreatePointCloud();
+  //   return;
+  //   }
+  // alert("FIXME: update");
+  // pcl_PointCloud * pc = freenect_sync(this->config, 0);
+  // if (pc == NULL)
+  //   {
+  //   this->m_isGood = false;
+  //   return;
+  //   }
   // FIXME!!!! do something to combine(pc and this->pointCloud)
 }
 
+  /**
+     Create a new point cloud.  Any old PC will be lost.
+		 Take a N-second video.  The length of the video is determined by Parameters.
+		 produce first frame pointcloud
+  */
 void Cloudy::CreatePointCloud() {
   pcl_PointCloud * pc = freenect_sync(this->config, 0);
   if (pc == NULL)
@@ -393,10 +401,23 @@ void Cloudy::CreatePointCloud() {
   this->m_isGood = true;
 }
 
+  /**
+     Reset to initial condition.
+  */
 void Cloudy::ClearPointCloud() {
+	//fixme
   delete this->pointCloud; // no-op if already NULL;
   this->pointCloud = NULL;
 }
+
+  /**
+     If possible, revert to state before the last call to UpdatePointCloud().
+  */
+void Cloudy::RevertPointCloud()
+{
+	// FIXME
+}
+
 
 
 /******************************************************************************/

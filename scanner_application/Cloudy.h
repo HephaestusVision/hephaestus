@@ -45,25 +45,27 @@ public:
   Cloudy(Parameters * parameters = NULL);
   virtual ~Cloudy();
 
-  // /**
-  //    @return a pointer to the current point cloud.  Can return NULL if
-  //    there are no point clouds right now.
-  // */
-  // PointCloud const * GetCurrentPointCloud() const;
-
   /**
      Save the current PointCloud object into a vtkPolyData.
   */
   void GetCurrentPointCloud(vtkPolyData * output);
 
   /**
-     Modify the current point cloud by adding points to it.
+     Modify the current point cloud by adding another frame.
   */
   void UpdatePointCloud();
+
   /**
      Create a new point cloud.  Any old PC will be lost.
+		 Take a N-second video.  The length of the video is determined by Parameters.
+		 produce first frame pointcloud
   */
   void CreatePointCloud();
+
+  /**
+     If possible, revert to state before the last call to UpdatePointCloud().
+  */
+  void RevertPointCloud();
 
   /**
      Reset to initial condition.
