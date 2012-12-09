@@ -99,18 +99,24 @@ static void resetCamera(QVTKPolyViewWidget * qVTKPolyViewWidget)
 
 void DepthScannerMainWindow::create()
 {
-  this->cloudy->ClearPointCloud();
+  //this->cloudy->ClearPointCloud(); // assumed to be not necessary.
   this->cloudy->CreatePointCloud();
-	this->cloudy->GetCurrentPointCloud(this->pointCloud);
+  this->cloudy->GetCurrentPointCloud(this->pointCloud);
   this->qVTKPolyViewWidget.newSource(this->pointCloud);
-	resetCamera(&(this->qVTKPolyViewWidget));
+  resetCamera(&(this->qVTKPolyViewWidget));
 }
 
+void DepthScannerMainWindow::revert()
+{
+  this->cloudy->RevertPointCloud();
+  this->cloudy->GetCurrentPointCloud(this->pointCloud);
+  this->qVTKPolyViewWidget.newSource(this->pointCloud);
+}
 
 void DepthScannerMainWindow::update()
 {
   this->cloudy->UpdatePointCloud();
-	this->cloudy->GetCurrentPointCloud(this->pointCloud);
+  this->cloudy->GetCurrentPointCloud(this->pointCloud);
   this->qVTKPolyViewWidget.newSource(this->pointCloud);
 }
 
@@ -171,6 +177,11 @@ DepthScannerMainWindow::DepthScannerMainWindow():
   tool->addAction(
     createAction("&Update", this, QKeySequence(Qt::CTRL + Qt::Key_U),
       "add points to the point cloud. Ctrl-u", SIGNAL(triggered()), SLOT(update())));
+
+  tool->addAction(
+    createAction("Revert", this, QKeySequence(Qt::CTRL + Qt::Key_Z),
+      "revert the point cloud to previous state. Ctrl-z",
+      SIGNAL(triggered()), SLOT(revert())));
 
   tool->addAction(
     createAction("&Save", this, QKeySequence(Qt::CTRL + Qt::Key_S),

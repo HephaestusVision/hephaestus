@@ -1,12 +1,12 @@
 /**
-	@file DepthScannerMainWindow.h
+  @file DepthScannerMainWindow.h
 
-	@authors
+  @authors
   Written 2012 by Hal Canary, Christopher Leslie, Frank Ferro
     http://hephaestusvision.github.com/hephaestus/
-		
+    
   @copyright
-	Copyright 2012 University of North Carolina at Chapel Hill.
+  Copyright 2012 University of North Carolina at Chapel Hill.
 
   @copyright
   Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -36,14 +36,14 @@ class CameraWidget;
 class vtkPolyData;
 
 /**
-	 subclass of <a
-	 href="http://doc.qt.digia.com/qt/qmainwindow.html">QMainWindow</a>.
-	 Has a window with camera view, another window with the rendered
-	 object (via VTK), and a toolbar with command buttons.  */
+   subclass of <a
+   href="http://doc.qt.digia.com/qt/qmainwindow.html">QMainWindow</a>.
+   Has a window with camera view, another window with the rendered
+   object (via VTK), and a toolbar with command buttons.  */
 class DepthScannerMainWindow : public QMainWindow {
   Q_OBJECT
 public:
-	/** constructor */
+  /** constructor */
   DepthScannerMainWindow();
   ~DepthScannerMainWindow();
 public slots:
@@ -53,6 +53,9 @@ public slots:
   /**
     function executed when you click Update.  Calls Cloudy::UpdatePointCloud() */
   void update();
+  /**
+    function executed when you click Revert.  Calls Cloudy::RevertPointCloud() */
+  void revert();
   /**
     function executed when  you click Save. Calls QVTKPolyViewWidget::saveVTK() */
   void save();
@@ -66,7 +69,7 @@ public slots:
     function executed when  you click Settings.   */
   void settings();
 public:
-	Parameters parameters;
+  Parameters parameters;
   vtkPolyData * pointCloud;
   QVTKPolyViewWidget qVTKPolyViewWidget ;
   Cloudy * cloudy;
@@ -74,7 +77,7 @@ public:
 
   /**
     The LoginDialog is hidden when it completes, but should keep the
-	data fields populated. */
+  data fields populated. */
   LoginDialog loginDialog;
 private:
   DepthScannerMainWindow(const DepthScannerMainWindow &);
