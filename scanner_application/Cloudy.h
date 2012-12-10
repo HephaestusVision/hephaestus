@@ -84,6 +84,7 @@ public slots:
 private:
   Cloudy(const Cloudy & c); // noncopyable resource
   Cloudy& operator=(const Cloudy & c); // noncopyable resource
+	int UpdateSinglePointCloud(bool deleteOriginalPointCloud);
 
   /* private instance variables */
   bool m_isGood;

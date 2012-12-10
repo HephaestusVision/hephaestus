@@ -77,11 +77,18 @@ struct cloudy_configuration {
   double Rjx, Rjy, Rjz, Tj;
   double cx_d, cy_d, invfx_d, invfy_d;
 	double videoLength;
+	double imageBatchSize;
+	double imageJump;
 	vector<short> depthImages;
 	vector<char> rgbImages;
 	int currentImage;
 	int maxImages;
+	int numberOfImagesToJump;
 	pcl::PointCloud<pcl::PointXYZRGBNormal> *currentPointCloud;
+	pcl::PointCloud<pcl::PointXYZRGBNormal> *previousPointCloud1;
+	int previousImageNumber1;
+	//pcl::PointCloud<pcl::PointXYZRGBNormal> *previousPointCloud2;
+	//int previousImageNumber2;
 };
 
 /******************************************************************************/
@@ -270,6 +277,8 @@ static int get_index_depth_image(int imageNumber)
 */
 static pcl::PointCloud<pcl::PointXYZRGBNormal> * get_next_point_cloud(cloudy_configuration * config)
 {
+	cout << "Getting Next Image" << endl;
+	print(config->currentImage);
 	if(config->currentImage==config->maxImages-1)
 	{
 		return(NULL);
@@ -314,6 +323,8 @@ Cloudy::Cloudy(Parameters * parameters):
   parameters->setDefault("Infinity in meters", "3.0");
 
 	parameters->setDefault("Length of Creation Video in frames", 25);
+	parameters->setDefault("Images Processed In One Update", 1);
+	parameters->setDefault("Next Image Number = Old Image Number + This", 1);
 
   // RGB CAMERA
   //   Focal Length
@@ -359,6 +370,8 @@ void Cloudy::parametersChanged()
   cloudy_configuration * config = this->config;
 
 	config->videoLength = this->parameters->getValue("Length of Creation Video in frames");
+	config->imageBatchSize = this->parameters->getValue("Images Processed In One Update");
+	config->imageJump = this->parameters->getValue("Next Image Number = Old Image Number + This");
 
   config->fx_rgb = this->parameters->getValue("RGB Focal Length X");
   config->fy_rgb = this->parameters->getValue("RGB Focal Length Y");
@@ -415,20 +428,19 @@ void Cloudy::GetCurrentPointCloud(vtkPolyData * output)
 	point_cloud_to_vtkPolyData(this->config->currentPointCloud, output);
 }
 
-  /**
-     Modify the current point cloud by adding another frame.
-  */
-void Cloudy::UpdatePointCloud()
+int Cloudy::UpdateSinglePointCloud(bool deleteOriginalPointCloud)
 {
 	pcl::PointCloud<pcl::PointXYZRGBNormal> *originalPointCloud = this->config->currentPointCloud;
 	pcl::PointCloud<pcl::PointXYZRGBNormal> *newPointCloud = get_next_point_cloud(this->config);
 	if(originalPointCloud==NULL)
 	{
 		alert("No Current Point Cloud");
+		return(-2);
 	}
 	else if(newPointCloud==NULL)
 	{
 		alert("The End of the Sequence Has Been Reached");
+		return(-1);
 	}
 	else
 	{
@@ -438,7 +450,7 @@ void Cloudy::UpdatePointCloud()
 		icp.setMaximumIterations(50);
 		icp.setTransformationEpsilon (1e-9);
 		icp.setEuclideanFitnessEpsilon (0.0000001);
-		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr originalPointCloudSharedPointer(originalPointCloud);
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr originalPointCloudSharedPointer = originalPointCloud->makeShared();
 		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr newPointCloudSharedPointer(newPointCloud);
 		icp.setInputCloud(originalPointCloudSharedPointer);
 		icp.setInputTarget(newPointCloudSharedPointer);
@@ -459,13 +471,64 @@ void Cloudy::UpdatePointCloud()
 		pcl::PointCloud<pcl::PointXYZRGBNormal> *finalPointCloudDownsampled = new pcl::PointCloud<pcl::PointXYZRGBNormal>;
 		vox_grid.filter (*finalPointCloudDownsampled);
 		cout << "Deleting" << endl;
-		delete originalPointCloud;
+		if(deleteOriginalPointCloud)
+		{
+			delete originalPointCloud;
+		}
 		delete newPointCloud;
 		delete alignedPointCloud;
 		delete finalPointCloudFullRes;
 		cout <<"Setting New Final" <<endl;
 		this->config->currentPointCloud=finalPointCloudDownsampled;
 		cout <<"OUTTAHERE" <<endl;
+		return(0);
+	}
+}
+
+  /**
+     Modify the current point cloud by adding another frame.
+  */
+void Cloudy::UpdatePointCloud()
+{
+	int numberToDo = static_cast<int>(this->config->imageBatchSize);
+	if(numberToDo < 1)
+	{
+		numberToDo=1;
+	}
+	this->config->numberOfImagesToJump=static_cast<int>(this->config->imageJump);
+	if(this->config->numberOfImagesToJump < 1)
+	{
+		this->config->numberOfImagesToJump=1;
+	}
+	int counter = 0;
+	int updateResponse = 0;
+	if(this->config->previousPointCloud1!=NULL)
+	{
+		cout << "Update: Deleting previousPointCloud" << endl;
+		delete this->config->previousPointCloud1;
+	}
+	cout << "Update: Setting previousPointCloud" << endl;
+	this->config->previousPointCloud1=this->config->currentPointCloud;
+	this->config->previousImageNumber1=this->config->currentImage;
+	cout << "Update: Now onto updating" << endl;
+	while((counter < numberToDo) && (updateResponse==0))
+	{
+		this->config->currentImage = this->config->currentImage + this->config->numberOfImagesToJump - 1;
+		print(counter);
+		bool deleteCurrentPointCloud=true;
+		if(counter==0)
+		{
+			cout << "Update: Not deleting current point cloud" << endl;
+			deleteCurrentPointCloud=false;
+		}
+		updateResponse = UpdateSinglePointCloud(deleteCurrentPointCloud);
+		counter = counter+1;
+	}
+	if(counter!=0)
+	{
+		cout << "Update: Checking Point Clouds" << endl;
+		cout << "previousPointCloud has " << this->config->previousPointCloud1->points.size() << " points" << endl;
+		cout << "currentPointCloud has " << this->config->currentPointCloud->points.size() << " points" << endl;
 	}
 }
 
@@ -496,7 +559,14 @@ void Cloudy::CreatePointCloud() {
 
 	//Produce first frame pointcloud
 	this->config->currentPointCloud = get_next_point_cloud(config);
-
+	if(this->config->previousPointCloud1!=NULL)
+	{
+		delete this->config->previousPointCloud1;
+	}
+	this->config->previousPointCloud1=NULL;
+	this->config->previousImageNumber1=-1;
+	//this->config->previousPointCloud2=NULL;
+	//this->config->previousImageNumber2=-1;
 }
 
   /**
@@ -514,9 +584,26 @@ void Cloudy::ClearPointCloud() {
 void Cloudy::RevertPointCloud()
 {
 	// FIXME
-	// Incorrect implementation
-	this->config->currentImage=-1;
-	this->config->currentPointCloud = NULL;
+	cout << "Reverting" << endl;
+	if(0 < this->config->previousImageNumber1)
+	{
+		cout << "Deleting Old Current Point Cloud" << endl;
+		delete this->config->currentPointCloud;
+		cout << "Setting Up Current Image" << endl;
+		this->config->currentImage=this->config->previousImageNumber1;
+		this->config->currentPointCloud = this->config->previousPointCloud1;
+		cout << "Resetting Previous Point Cloud" << endl;
+		this->config->previousImageNumber1=-1;
+		this->config->previousPointCloud1 = NULL;
+	}
+	else
+	{
+		cout << "Reset to the Beginning" << endl;
+		this->config->currentImage=-1;
+		this->config->currentPointCloud = get_next_point_cloud(config);
+		this->config->previousImageNumber1=-1;
+		this->config->previousPointCloud1 = NULL;
+	}
 }
 
 
