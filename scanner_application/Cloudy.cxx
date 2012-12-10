@@ -319,6 +319,9 @@ Cloudy::Cloudy(Parameters * parameters):
   parameters(parameters),
   config(new cloudy_configuration)
 {
+	this->config->currentPointCloud = NULL;
+	this->config->previousPointCloud1 = NULL;
+
   assert (parameters != NULL);
   parameters->setDefault("Infinity in meters", "3.0");
 
@@ -450,19 +453,23 @@ int Cloudy::UpdateSinglePointCloud(bool deleteOriginalPointCloud)
 		icp.setMaximumIterations(50);
 		icp.setTransformationEpsilon (1e-9);
 		icp.setEuclideanFitnessEpsilon (0.0000001);
-		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr originalPointCloudSharedPointer = originalPointCloud->makeShared();
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr originalPointCloudSharedPointer(originalPointCloud->makeShared());
 		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr newPointCloudSharedPointer(newPointCloud);
 		icp.setInputCloud(originalPointCloudSharedPointer);
 		icp.setInputTarget(newPointCloudSharedPointer);
-		cout << "Zoooom!" << endl;
-		pcl::PointCloud<pcl::PointXYZRGBNormal> *alignedPointCloud = new pcl::PointCloud<pcl::PointXYZRGBNormal>;
-		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr alignedPointCloudPtrSharedPointer(alignedPointCloud); 
+		cout << "Beginning Combining Point Clouds Algorithm Execution!" << endl;
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr alignedPointCloudPtrSharedPointer(new pcl::PointCloud<pcl::PointXYZRGBNormal>); 
+
 		icp.align(*(alignedPointCloudPtrSharedPointer.get()));
 		cout << "has converged:" << icp.hasConverged() << " score: " <<	icp.getFitnessScore() << endl;
-		pcl::PointCloud<pcl::PointXYZRGBNormal> *finalPointCloudFullRes = new pcl::PointCloud<pcl::PointXYZRGBNormal>;
-		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr finalPointCloudFullResSharedPointer(finalPointCloudFullRes);
+
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr finalPointCloudFullResSharedPointer(new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+
 		cout << "Combining" << endl;
-		*finalPointCloudFullRes = *alignedPointCloud + *newPointCloud;
+		*(finalPointCloudFullResSharedPointer.get()) = 
+			*(alignedPointCloudPtrSharedPointer.get()) + 
+			*(finalPointCloudFullResSharedPointer.get());
+
 		cout << "DownSampling" << endl;
 		const float final_voxel_grid_size = 0.003f;
 		pcl::VoxelGrid<pcl::PointXYZRGBNormal> vox_grid;
@@ -475,12 +482,12 @@ int Cloudy::UpdateSinglePointCloud(bool deleteOriginalPointCloud)
 		{
 			delete originalPointCloud;
 		}
-		delete newPointCloud;
-		delete alignedPointCloud;
-		delete finalPointCloudFullRes;
+		//delete newPointCloud;
+		//delete alignedPointCloud;
+		//delete finalPointCloudFullRes;
 		cout <<"Setting New Final" <<endl;
 		this->config->currentPointCloud=finalPointCloudDownsampled;
-		cout <<"OUTTAHERE" <<endl;
+		cout << "Completed Combining Point Clouds Algorithm Execution!" << endl;
 		return(0);
 	}
 }
