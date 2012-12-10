@@ -27,6 +27,7 @@
 //#include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 //#include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkProperty.h>
 
 #include <vtkCamera.h>
 #include <vtkSmartPointer.h>
@@ -56,6 +57,7 @@ QVTKPolyViewWidget::QVTKPolyViewWidget(QWidget *parent, vtkPolyData * src) :
     setInputData(this->mapper, this->polySource);
     this->actor->SetMapper(this->mapper);
     this->renderWindow->AddRenderer(this->renderer);
+		this->actor->GetProperty()->SetPointSize(3);
     this->renderer->AddActor(this->actor);
 
     this->renderer->ResetCamera();

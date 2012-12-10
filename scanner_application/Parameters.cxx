@@ -51,12 +51,12 @@ Parameters::Parameters(
   sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
   this->setSizePolicy(sizePolicy);
 
-	this->resize(400, 300);
+	this->resize(550, 400);
 	QVBoxLayout * verticalLayout = new QVBoxLayout(this);
 	QScrollArea * scrollArea = new QScrollArea(this);
 	scrollArea->setWidgetResizable(true);
 	QWidget * scrollAreaWidgetContents = new QWidget();
-	scrollAreaWidgetContents->setGeometry(QRect(0, 0, 364, 821));
+	scrollAreaWidgetContents->setGeometry(QRect(0, 0, 514, 821));
 
 	this->gridLayout = new QGridLayout(scrollAreaWidgetContents);
 
