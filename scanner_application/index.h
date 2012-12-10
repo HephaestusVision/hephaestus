@@ -29,6 +29,12 @@ data structures.
 
 MidasUpload.h holds the functions for talking to a MIDAS server.
 
+The overall architecture of the Hephaestus system:<br>
+<img src="http://hephaestusvision.github.com/images/hephestus_arch_1.png">
+
+The architecture of the Hephaestus Scanner Application:<br>
+<img src="http://hephaestusvision.github.com/images/hephestus_arch_2.png">
+
 <hr>
 
 -	http://hephaestusvision.github.com/
