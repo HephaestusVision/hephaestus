@@ -51,7 +51,7 @@
 #include <Eigen/Dense>
 
 //// debugging code
-// #define print(a) std::cerr << (#a) << ": " << (a) << '\n';
+#define print(a) std::cerr << (#a) << ": " << (a) << '\n';
 
 using namespace Eigen;
 using namespace std;
@@ -61,6 +61,8 @@ typedef pcl::PointCloud<pcl::PointXYZRGBNormal> pcl_PointCloud;
 
 static const short DEFAULT_MAXIMIM_DEPTH = 2047;
 static const short DEFAULT_MINIMUM_DEPTH = 10;
+static const int IMAGE_WIDTH = 640;
+static const int IMAGE_HEIGHT = 480;
 
 // This struct serves as a private implementation object.
 struct cloudy_configuration {
@@ -73,6 +75,10 @@ struct cloudy_configuration {
   double Rjx, Rjy, Rjz, Tj;
   double cx_d, cy_d, invfx_d, invfy_d;
 	double videoLength;
+	vector<short> depthImages;
+	vector<char> rgbImages;
+	int currentImage;
+	pcl::PointCloud<pcl::PointXYZRGBNormal> *currentPointCloud;
 };
 
 /******************************************************************************/
@@ -177,7 +183,7 @@ static inline void project_xyz_to_colorimg(double * xyz, int * colori, int *colo
 }
 
 /**
-   Given two IplImages representing RGB and depth information, create
+   Given two pointers representing RGB and depth information, create
    pcl::PointCloud<pcl::PointXYZRGBNormal> object.
 
    The returned pointer will point to a object created on the stack.
@@ -185,21 +191,18 @@ static inline void project_xyz_to_colorimg(double * xyz, int * colori, int *colo
 
    Returns NULL on an error.
  */
-pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
-  _IplImage const * rgbImage,
-  _IplImage const * depthImage,
+static pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
+  short * depthValues, 
+	char * colorValues,
   cloudy_configuration * config)
 {
-  if (rgbImage == NULL || depthImage == NULL)
+  if (colorValues == NULL || depthValues == NULL)
     return NULL;
   assert(config != NULL);
   short infinity = config->maximimDepth;
-  int rows = depthImage->height;
-  int columns = depthImage->width;
+  int rows = IMAGE_HEIGHT;
+  int columns = IMAGE_WIDTH;
   int number_of_pixels = rows * columns;
-  short *depthValues = reinterpret_cast<short*>(depthImage->imageData);
-  unsigned char * colorVals =
-    reinterpret_cast<unsigned char*>(rgbImage->imageData);
   int number_of_points = 0;
 
   for (int i = 0; i < number_of_pixels; ++i)
@@ -232,9 +235,9 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
         point.z = static_cast<float>(xyz[2]);
         int colori=i, colorj=j;
         project_xyz_to_colorimg(xyz, &colori, &colorj, config);
-        point.r = colorVals[(((colori * columns) + colorj) * 3) + 0];
-        point.g = colorVals[(((colori * columns) + colorj) * 3) + 1];
-        point.b = colorVals[(((colori * columns) + colorj) * 3) + 2];
+        point.r = colorValues[(((colori * columns) + colorj) * 3) + 0];
+        point.g = colorValues[(((colori * columns) + colorj) * 3) + 1];
+        point.b = colorValues[(((colori * columns) + colorj) * 3) + 2];
         pc->push_back(point);
         }
       }
@@ -242,19 +245,23 @@ pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
   return pc;
 }
 
-// talk to the Kinect, get images from the depth camera, converty them
-// to a point cloud and return that.
-static pcl::PointCloud<pcl::PointXYZRGBNormal> * freenect_sync(
-  cloudy_configuration * config, int freenect_index = 0)
+// Talk to the Kinect, get rgb and depth images from the depth camera.
+// Store those images into the memory provided and already allocated by the caller.
+static bool freenect_sync(
+  short * depthImageLocation, char * rgbImageLocation, int freenect_index = 0)
 {
   _IplImage * rgbImage, * depthImage;
   rgbImage = freenect_sync_get_rgb_cv(freenect_index);
   if (rgbImage == NULL)
-    return NULL;
+    return false;
   depthImage = freenect_sync_get_depth_cv(freenect_index);
   if (depthImage == NULL)
-    return NULL;
-  return depth_image_to_point_cloud(rgbImage, depthImage, config);
+    return false;
+	assert(depthImage->height == IMAGE_HEIGHT);
+	assert(depthImage->width == IMAGE_WIDTH);
+	memcpy(depthImageLocation,depthImage->imageData,IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(short));
+	memcpy(rgbImageLocation,rgbImage->imageData,IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(char));
+	return true;
 }
 
 /******************************************************************************/
@@ -366,7 +373,7 @@ bool Cloudy::isGood()
 
 void Cloudy::GetCurrentPointCloud(vtkPolyData * output)
 {
-  point_cloud_to_vtkPolyData(this->pointCloud, output);
+	point_cloud_to_vtkPolyData(this->config->currentPointCloud, output);
 }
 
   /**
@@ -390,20 +397,28 @@ void Cloudy::UpdatePointCloud()
 }
 
   /**
-     Create a new point cloud.  Any old PC will be lost.
 		 Take a N-second video.  The length of the video is determined by Parameters.
-		 produce first frame pointcloud
+		 Produce first frame pointcloud
+		 Any old PC will be lost.
   */
 void Cloudy::CreatePointCloud() {
-  pcl_PointCloud * pc = freenect_sync(this->config, 0);
-  if (pc == NULL)
-    {
-    this->m_isGood = false;
-    return;
-    }
-  delete this->pointCloud; // no-op if already NULL;
-  this->pointCloud = pc;
-  this->m_isGood = true;
+	//Create Images
+	int maxImages=500;
+	this->config->depthImages.resize(IMAGE_WIDTH*IMAGE_HEIGHT*maxImages);
+	this->config->rgbImages.resize(IMAGE_WIDTH*IMAGE_HEIGHT*maxImages);
+	print(maxImages);
+	for(int i=0;i<maxImages;i++)
+	{
+		if((i%100)==0)
+			print(i);
+		short * currentDepthImgLocation = &(this->config->depthImages[IMAGE_WIDTH*IMAGE_HEIGHT*i]);
+		char * currentRgbImgLocation = &(this->config->rgbImages[IMAGE_WIDTH*IMAGE_HEIGHT*i]);
+		freenect_sync(currentDepthImgLocation,currentRgbImgLocation, 0);
+	}
+
+	//Produce first frame pointcloud
+	this->config->currentPointCloud = depth_image_to_point_cloud(&(this->config->depthImages[0]),&(this->config->rgbImages[0]),this->config);
+
 }
 
   /**
