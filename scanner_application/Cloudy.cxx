@@ -50,12 +50,14 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
+#include <pcl/registration/icp.h>
+#include <pcl/filters/voxel_grid.h>
+
 //// debugging code
 #define print(a) std::cerr << (#a) << ": " << (a) << '\n';
 
 using namespace Eigen;
 using namespace std;
-using namespace cv;
 
 typedef pcl::PointCloud<pcl::PointXYZRGBNormal> pcl_PointCloud;
 
@@ -78,6 +80,7 @@ struct cloudy_configuration {
 	vector<short> depthImages;
 	vector<char> rgbImages;
 	int currentImage;
+	int maxImages;
 	pcl::PointCloud<pcl::PointXYZRGBNormal> *currentPointCloud;
 };
 
@@ -261,12 +264,23 @@ static int get_index_depth_image(int imageNumber)
 	return(IMAGE_WIDTH*IMAGE_HEIGHT*imageNumber);
 }
 
+/**
+	Returns the point cloud associated with the next image returned by depth_image_to_point_cloud.
+	Reutrns NULL if there are no more images in the sequence.
+*/
 static pcl::PointCloud<pcl::PointXYZRGBNormal> * get_next_point_cloud(cloudy_configuration * config)
 {
-	config->currentImage = config->currentImage + 1;
-	int rgbIndex = get_index_rgb_image(config->currentImage);
-	int depthIndex = get_index_depth_image(config->currentImage);
-	return(depth_image_to_point_cloud(&(config->depthImages[depthIndex]),&(config->rgbImages[rgbIndex]),config));
+	if(config->currentImage==config->maxImages-1)
+	{
+		return(NULL);
+	}
+	else
+	{
+		config->currentImage = config->currentImage + 1;
+		int rgbIndex = get_index_rgb_image(config->currentImage);
+		int depthIndex = get_index_depth_image(config->currentImage);
+		return(depth_image_to_point_cloud(&(config->depthImages[depthIndex]),&(config->rgbImages[rgbIndex]),config));
+	}
 }
 
 
@@ -299,7 +313,7 @@ Cloudy::Cloudy(Parameters * parameters):
   assert (parameters != NULL);
   parameters->setDefault("Infinity in meters", "3.0");
 
-	parameters->setDefault("Length of Creation Video in seconds", 15);
+	parameters->setDefault("Length of Creation Video in frames", 25);
 
   // RGB CAMERA
   //   Focal Length
@@ -344,7 +358,7 @@ void Cloudy::parametersChanged()
 {
   cloudy_configuration * config = this->config;
 
-	config->videoLength = this->parameters->getValue("Length of Creation Video in seconds");
+	config->videoLength = this->parameters->getValue("Length of Creation Video in frames");
 
   config->fx_rgb = this->parameters->getValue("RGB Focal Length X");
   config->fy_rgb = this->parameters->getValue("RGB Focal Length Y");
@@ -408,9 +422,51 @@ void Cloudy::UpdatePointCloud()
 {
 	pcl::PointCloud<pcl::PointXYZRGBNormal> *originalPointCloud = this->config->currentPointCloud;
 	pcl::PointCloud<pcl::PointXYZRGBNormal> *newPointCloud = get_next_point_cloud(this->config);
-	//Merge the point clouds
-  this->config->currentPointCloud = newPointCloud;
-	delete originalPointCloud;
+	if(originalPointCloud==NULL)
+	{
+		alert("No Current Point Cloud");
+	}
+	else if(newPointCloud==NULL)
+	{
+		alert("The End of the Sequence Has Been Reached");
+	}
+	else
+	{
+		//Merge the point clouds
+		pcl::IterativeClosestPoint<pcl::PointXYZRGBNormal, pcl::PointXYZRGBNormal> icp;
+		icp.setMaxCorrespondenceDistance(0.02);
+		icp.setMaximumIterations(50);
+		icp.setTransformationEpsilon (1e-9);
+		icp.setEuclideanFitnessEpsilon (0.0000001);
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr originalPointCloudSharedPointer(originalPointCloud);
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr newPointCloudSharedPointer(newPointCloud);
+		icp.setInputCloud(originalPointCloudSharedPointer);
+		icp.setInputTarget(newPointCloudSharedPointer);
+		cout << "Zoooom!" << endl;
+		pcl::PointCloud<pcl::PointXYZRGBNormal> *alignedPointCloud = new pcl::PointCloud<pcl::PointXYZRGBNormal>;
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr alignedPointCloudPtrSharedPointer(alignedPointCloud); 
+		icp.align(*(alignedPointCloudPtrSharedPointer.get()));
+		cout << "has converged:" << icp.hasConverged() << " score: " <<	icp.getFitnessScore() << endl;
+		pcl::PointCloud<pcl::PointXYZRGBNormal> *finalPointCloudFullRes = new pcl::PointCloud<pcl::PointXYZRGBNormal>;
+		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr finalPointCloudFullResSharedPointer(finalPointCloudFullRes);
+		cout << "Combining" << endl;
+		*finalPointCloudFullRes = *alignedPointCloud + *newPointCloud;
+		cout << "DownSampling" << endl;
+		const float final_voxel_grid_size = 0.003f;
+		pcl::VoxelGrid<pcl::PointXYZRGBNormal> vox_grid;
+		vox_grid.setInputCloud (finalPointCloudFullResSharedPointer);
+		vox_grid.setLeafSize (final_voxel_grid_size, final_voxel_grid_size, final_voxel_grid_size);
+		pcl::PointCloud<pcl::PointXYZRGBNormal> *finalPointCloudDownsampled = new pcl::PointCloud<pcl::PointXYZRGBNormal>;
+		vox_grid.filter (*finalPointCloudDownsampled);
+		cout << "Deleting" << endl;
+		delete originalPointCloud;
+		delete newPointCloud;
+		delete alignedPointCloud;
+		delete finalPointCloudFullRes;
+		cout <<"Setting New Final" <<endl;
+		this->config->currentPointCloud=finalPointCloudDownsampled;
+		cout <<"OUTTAHERE" <<endl;
+	}
 }
 
   /**
@@ -420,12 +476,16 @@ void Cloudy::UpdatePointCloud()
   */
 void Cloudy::CreatePointCloud() {
 	//Create Images
-	int maxImages=500;
+	assert (this->config != NULL);
+	this->config->maxImages = static_cast<int>(this->config->videoLength);
+	if(this->config->maxImages<1)
+	{
+		this->config->maxImages=1;
+	}
 	this->config->currentImage=-1; //Since currentPointCloud has nothing in it, the currentImage being displayed it the -1st one, a non-valid image;
-	this->config->depthImages.resize(IMAGE_WIDTH*IMAGE_HEIGHT*maxImages);
-	this->config->rgbImages.resize(3*IMAGE_WIDTH*IMAGE_HEIGHT*maxImages);
-	print(maxImages);
-	for(int i=0;i<maxImages;i++)
+	this->config->depthImages.resize(IMAGE_WIDTH*IMAGE_HEIGHT*this->config->maxImages);
+	this->config->rgbImages.resize(3*IMAGE_WIDTH*IMAGE_HEIGHT*this->config->maxImages);
+	for(int i=0;i<this->config->maxImages;i++)
 	{
 		if((i%50)==0)
 			print(i);
@@ -454,6 +514,9 @@ void Cloudy::ClearPointCloud() {
 void Cloudy::RevertPointCloud()
 {
 	// FIXME
+	// Incorrect implementation
+	this->config->currentImage=-1;
+	this->config->currentPointCloud = NULL;
 }
 
 

@@ -48,7 +48,7 @@ if( ${MSVC} )
 endif( ${MSVC} )
 
 ## PCL ##
-find_package(PCL 1.3 REQUIRED COMPONENTS common io search)
+find_package(PCL)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -138,6 +138,7 @@ target_link_libraries(
   ${PCL_SEARCH_LIBRARY}
   ${PCL_SURFACE_LIBRARY}
   ${PCL_FEATURES_LIBRARY}
+  ${PCL_FILTERS_LIBRARY}
 )
 
 if(${MSVC})
