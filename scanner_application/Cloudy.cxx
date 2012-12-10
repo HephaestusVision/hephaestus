@@ -245,6 +245,31 @@ static pcl::PointCloud<pcl::PointXYZRGBNormal> * depth_image_to_point_cloud(
   return pc;
 }
 
+/**
+	Returns the starting index in rgbImages of the image numbered imageNumber
+*/
+static int get_index_rgb_image(int imageNumber)
+{
+	return(3*IMAGE_WIDTH*IMAGE_HEIGHT*imageNumber);
+}
+
+/**
+	Returns the starting index in depthImages of the image numbered imageNumber
+*/
+static int get_index_depth_image(int imageNumber)
+{
+	return(IMAGE_WIDTH*IMAGE_HEIGHT*imageNumber);
+}
+
+static pcl::PointCloud<pcl::PointXYZRGBNormal> * get_next_point_cloud(cloudy_configuration * config)
+{
+	config->currentImage = config->currentImage + 1;
+	int rgbIndex = get_index_rgb_image(config->currentImage);
+	int depthIndex = get_index_depth_image(config->currentImage);
+	return(depth_image_to_point_cloud(&(config->depthImages[depthIndex]),&(config->rgbImages[rgbIndex]),config));
+}
+
+
 // Talk to the Kinect, get rgb and depth images from the depth camera.
 // Store those images into the memory provided and already allocated by the caller.
 static bool freenect_sync(
@@ -260,7 +285,7 @@ static bool freenect_sync(
 	assert(depthImage->height == IMAGE_HEIGHT);
 	assert(depthImage->width == IMAGE_WIDTH);
 	memcpy(depthImageLocation,depthImage->imageData,IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(short));
-	memcpy(rgbImageLocation,rgbImage->imageData,IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(char));
+	memcpy(rgbImageLocation,rgbImage->imageData,3*IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(char));
 	return true;
 }
 
@@ -296,11 +321,6 @@ Cloudy::Cloudy(Parameters * parameters):
   parameters->setDefault("depth_constant_k2", 2842.5); // config->k2
   parameters->setDefault("depth_constant_k3", 0.1236); // config->k3
 
-  parameters->setDefault("Rkx", 0.017470421412464927);
-  parameters->setDefault("Rky", 0.012275341476520762);
-  parameters->setDefault("Rkz", 0.99977202419716948);
-  parameters->setDefault("Tk",  -0.010916736334336222);
-
   parameters->setDefault("Rix", 0.99984628826577793);
   parameters->setDefault("Riy", 0.0012635359098409581);
   parameters->setDefault("Riz", -0.017487233004436643);
@@ -310,6 +330,11 @@ Cloudy::Cloudy(Parameters * parameters):
   parameters->setDefault("Rjy", 0.99992385683542895);
   parameters->setDefault("Rjz", -0.012251380107679535);
   parameters->setDefault("Tj", -0.00074423738761617583);
+	
+  parameters->setDefault("Rkx", 0.017470421412464927);
+  parameters->setDefault("Rky", 0.012275341476520762);
+  parameters->setDefault("Rkz", 0.99977202419716948);
+  parameters->setDefault("Tk",  -0.010916736334336222);
 
   QObject::connect(parameters, SIGNAL(changed()), this, SLOT(parametersChanged()));
   this->parametersChanged(); // get parameters from disc.
@@ -381,19 +406,11 @@ void Cloudy::GetCurrentPointCloud(vtkPolyData * output)
   */
 void Cloudy::UpdatePointCloud()
 {
-  // if (this->pointCloud == NULL)
-  //   {
-  //   this->CreatePointCloud();
-  //   return;
-  //   }
-  // alert("FIXME: update");
-  // pcl_PointCloud * pc = freenect_sync(this->config, 0);
-  // if (pc == NULL)
-  //   {
-  //   this->m_isGood = false;
-  //   return;
-  //   }
-  // FIXME!!!! do something to combine(pc and this->pointCloud)
+	pcl::PointCloud<pcl::PointXYZRGBNormal> *originalPointCloud = this->config->currentPointCloud;
+	pcl::PointCloud<pcl::PointXYZRGBNormal> *newPointCloud = get_next_point_cloud(this->config);
+	//Merge the point clouds
+  this->config->currentPointCloud = newPointCloud;
+	delete originalPointCloud;
 }
 
   /**
@@ -404,20 +421,21 @@ void Cloudy::UpdatePointCloud()
 void Cloudy::CreatePointCloud() {
 	//Create Images
 	int maxImages=500;
+	this->config->currentImage=-1; //Since currentPointCloud has nothing in it, the currentImage being displayed it the -1st one, a non-valid image;
 	this->config->depthImages.resize(IMAGE_WIDTH*IMAGE_HEIGHT*maxImages);
-	this->config->rgbImages.resize(IMAGE_WIDTH*IMAGE_HEIGHT*maxImages);
+	this->config->rgbImages.resize(3*IMAGE_WIDTH*IMAGE_HEIGHT*maxImages);
 	print(maxImages);
 	for(int i=0;i<maxImages;i++)
 	{
-		if((i%100)==0)
+		if((i%50)==0)
 			print(i);
-		short * currentDepthImgLocation = &(this->config->depthImages[IMAGE_WIDTH*IMAGE_HEIGHT*i]);
-		char * currentRgbImgLocation = &(this->config->rgbImages[IMAGE_WIDTH*IMAGE_HEIGHT*i]);
+		short * currentDepthImgLocation = &(this->config->depthImages[get_index_depth_image(i)]);
+		char * currentRgbImgLocation = &(this->config->rgbImages[get_index_rgb_image(i)]);
 		freenect_sync(currentDepthImgLocation,currentRgbImgLocation, 0);
 	}
 
 	//Produce first frame pointcloud
-	this->config->currentPointCloud = depth_image_to_point_cloud(&(this->config->depthImages[0]),&(this->config->rgbImages[0]),this->config);
+	this->config->currentPointCloud = get_next_point_cloud(config);
 
 }
 
